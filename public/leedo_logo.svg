@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 420" width="100%" height="100%">
+  <defs>
+    <!-- Rich brushed gold gradients based on LEEDO 로고2.png -->
+    <linearGradient id="goldGradientMain" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EED89F" />
+      <stop offset="25%" stop-color="#DFB96E" />
+      <stop offset="50%" stop-color="#FCEFC7" />
+      <stop offset="75%" stop-color="#C59A44" />
+      <stop offset="100%" stop-color="#A27725" />
+    </linearGradient>
+
+    <linearGradient id="goldGradientAccent" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FBF3D5" />
+      <stop offset="40%" stop-color="#D4AB54" />
+      <stop offset="80%" stop-color="#B88A31" />
+      <stop offset="100%" stop-color="#845C16" />
+    </linearGradient>
+
+    <!-- Drop shadow for depth -->
+    <filter id="shadowDepth" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <!-- Architectural LD Monogram -->
+  <g filter="url(#shadowDepth)">
+    <!-- Base line left wing -->
+    <path
+      d="M 20 380 Q 80 380 110 355 L 110 160 L 155 135 L 155 350 L 205 350 L 205 25 L 310 95 Q 400 160 400 245 Q 400 330 310 350 L 375 350 Q 410 375 480 380 L 400 380 L 335 315 L 335 380 L 110 380 L 20 380 Z"
+      fill="none"
+    />
+
+    <!-- Combined Master Path for the Golden LD Architecture -->
+    <!-- Left Pillar (L) and Outer D -->
+    <path
+      d="
+        M 15 380
+        C 65 378, 100 365, 105 345
+        L 105 160
+        L 155 130
+        L 155 348
+        L 175 348
+        L 175 30
+        L 205 18
+        L 205 348
+        L 310 348
+        C 375 345, 410 300, 410 240
+        C 410 175, 375 130, 310 100
+        L 240 55
+        L 240 100
+        L 295 135
+        C 340 160, 365 195, 365 240
+        C 365 285, 340 315, 290 318
+        L 225 318
+        L 225 110
+        L 205 95
+        L 205 380
+        L 105 380
+        L 15 380
+        Z
+      "
+      fill="url(#goldGradientMain)"
+    />
+
+    <!-- Inner L shape cut & bottom right wing -->
+    <path
+      d="
+        M 125 170
+        L 125 348
+        L 135 348
+        L 135 155
+        Z
+      "
+      fill="url(#goldGradientAccent)"
+    />
+
+    <!-- Bottom right dynamic architectural horn -->
+    <path
+      d="
+        M 330 348
+        L 395 348
+        C 425 365, 455 375, 485 380
+        L 345 380
+        L 390 310
+        L 370 300
+        L 330 348
+        Z
+      "
+      fill="url(#goldGradientMain)"
+    />
+
+    <!-- Inner D geometric crossline -->
+    <path
+      d="
+        M 240 120
+        L 295 155
+        C 330 180, 350 205, 350 240
+        C 350 275, 330 300, 295 305
+        L 240 305
+        Z
+      "
+      fill="#0F172A"
+      opacity="0.95"
+    />
+
+    <!-- Gold rim for Inner D Cutout -->
+    <path
+      d="
+        M 240 120
+        L 295 155
+        C 330 180, 350 205, 350 240
+        C 350 275, 330 300, 295 305
+        L 240 305
+        Z
+      "
+      fill="none"
+      stroke="url(#goldGradientAccent)"
+      stroke-width="5"
+    />
+  </g>
+</svg>

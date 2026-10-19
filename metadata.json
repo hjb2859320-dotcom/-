@@ -1,0 +1,6 @@
+{
+  "name": "이도(LEEDO) 직원 실적관리 시스템",
+  "description": "부동산 분양대행사 이도(LEEDO) 임직원 전용 실적 등록, 승인 및 실적 통계 관리 포털",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
