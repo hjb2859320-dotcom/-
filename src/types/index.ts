@@ -1,11 +1,12 @@
 export type UserRole = 'admin' | 'employee';
 export type AccountStatus = 'pending' | 'active' | 'rejected' | 'deactivated';
 
-// 직급: 대표, 이사, 본부장, 실장, 과장, 대리, 주임, 관리자
+// 직급: 대표, 이사, 본부장, 팀장, 실장, 과장, 대리, 주임, 관리자
 export type AllowedPosition =
   | '대표'
   | '이사'
   | '본부장'
+  | '팀장'
   | '실장'
   | '과장'
   | '대리'

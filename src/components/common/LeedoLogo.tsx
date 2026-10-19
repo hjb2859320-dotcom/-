@@ -55,7 +55,7 @@ export const LeedoLogo: React.FC<LeedoLogoProps> = ({
             </span>
           </div>
           <span className="text-[10px] font-medium text-slate-400 tracking-tight">
-            부동산 분양대행 실적관리
+            이도 업무포털
           </span>
         </div>
       )}

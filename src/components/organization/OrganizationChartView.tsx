@@ -43,14 +43,15 @@ export const OrganizationChartView: React.FC = () => {
     loadOrgData();
   }, []);
 
-  // Strict rank order: 대표 -> 이사 -> 본부장 -> 실장 -> 과장 -> 대리 -> 주임 -> 관리자
+  // Strict rank order: 대표 -> 이사 -> 본부장 -> 팀장 -> 실장 -> 과장 -> 대리 -> 주임 -> 관리자
   const rankOrder: Record<string, number> = {
     대표: 1,
     대표이사: 1,
     이사: 2,
     본부장: 3,
     총괄본부장: 3,
-    관리자: 4,
+    팀장: 4,
+    관리자: 4.5,
     실장: 5,
     과장: 6,
     대리: 7,
@@ -87,7 +88,7 @@ export const OrganizationChartView: React.FC = () => {
   // Group by Hierarchy
   const hierarchyGroups: { rank: string; list: UserProfile[] }[] = [
     { rank: '임원진 (대표 / 이사 / 본부장)', list: [] },
-    { rank: '관리자 / 실장', list: [] },
+    { rank: '팀장 / 실장 / 관리자', list: [] },
     { rank: '과장', list: [] },
     { rank: '대리 / 주임', list: [] },
   ];
@@ -96,7 +97,7 @@ export const OrganizationChartView: React.FC = () => {
     const pos = u.position || '';
     if (['대표', '대표이사', '이사', '본부장', '총괄본부장'].includes(pos)) {
       hierarchyGroups[0].list.push(u);
-    } else if (['관리자', '실장'].includes(pos)) {
+    } else if (['팀장', '실장', '관리자'].includes(pos)) {
       hierarchyGroups[1].list.push(u);
     } else if (pos === '과장') {
       hierarchyGroups[2].list.push(u);

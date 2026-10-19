@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   FileSpreadsheet,
   Users,
@@ -25,7 +25,22 @@ import {
   X,
   Phone,
   Mail,
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import {
   getAllPerformances,
@@ -73,6 +88,10 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [searchKeyword, setSearchKeyword] = useState<string>('');
+
+  // Chart States (recharts visual analytics)
+  const [showCharts, setShowCharts] = useState<boolean>(true);
+  const [barChartMode, setBarChartMode] = useState<'team' | 'site'>('team');
 
   // Sorting for Employee Summary
   const [employeeSortBy, setEmployeeSortBy] = useState<'contracts' | 'visitors' | 'name' | 'team'>('contracts');
@@ -265,6 +284,115 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
       }
       return a.user.name.localeCompare(b.user.name);
     });
+
+  // 1. Team Comparison Data for Bar Chart
+  const teamComparisonData = useMemo(() => {
+    const map = new Map<string, { name: string; contracts: number; visitors: number; cancelled: number }>();
+
+    teams.forEach((t) => {
+      map.set(t.name, { name: t.name, contracts: 0, visitors: 0, cancelled: 0 });
+    });
+
+    filteredPerformances.forEach((p) => {
+      const teamName = p.team || p.department || '미지정팀';
+      if (!map.has(teamName)) {
+        map.set(teamName, { name: teamName, contracts: 0, visitors: 0, cancelled: 0 });
+      }
+      const entry = map.get(teamName)!;
+      if (p.type === 'contract') {
+        if (p.status === 'completed') {
+          entry.contracts += p.contractCount || 1;
+        } else if (p.status === 'cancelled') {
+          entry.cancelled += p.contractCount || 1;
+        }
+      } else if (p.type === 'visitor') {
+        entry.visitors += p.visitorCount || 0;
+      }
+    });
+
+    return Array.from(map.values()).filter(
+      (item) => item.contracts > 0 || item.visitors > 0 || item.cancelled > 0 || teams.some((t) => t.name === item.name)
+    );
+  }, [teams, filteredPerformances]);
+
+  // 2. Site Comparison Data for Bar Chart
+  const siteComparisonData = useMemo(() => {
+    const map = new Map<string, { name: string; contracts: number; visitors: number; cancelled: number }>();
+
+    sites.forEach((s) => {
+      map.set(s.name, { name: s.name, contracts: 0, visitors: 0, cancelled: 0 });
+    });
+
+    filteredPerformances.forEach((p) => {
+      const siteName = p.siteName || '기타현장';
+      if (!map.has(siteName)) {
+        map.set(siteName, { name: siteName, contracts: 0, visitors: 0, cancelled: 0 });
+      }
+      const entry = map.get(siteName)!;
+      if (p.type === 'contract') {
+        if (p.status === 'completed') {
+          entry.contracts += p.contractCount || 1;
+        } else if (p.status === 'cancelled') {
+          entry.cancelled += p.contractCount || 1;
+        }
+      } else if (p.type === 'visitor') {
+        entry.visitors += p.visitorCount || 0;
+      }
+    });
+
+    return Array.from(map.values()).filter(
+      (item) => item.contracts > 0 || item.visitors > 0 || item.cancelled > 0 || sites.some((s) => s.name === item.name)
+    );
+  }, [sites, filteredPerformances]);
+
+  const activeBarData = barChartMode === 'team' ? teamComparisonData : siteComparisonData;
+
+  // 3. Monthly Trend Data for Line Chart (12 Months of targetYear)
+  const monthlyTrendData = useMemo(() => {
+    const targetYear = selectedYear === 'all' ? currentYear : selectedYear;
+    const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+
+    return months.map((m) => {
+      const yearMonthKey = `${targetYear}-${m}`;
+      const monthRecords = performances.filter((p) => {
+        if (selectedTeam !== 'all' && (p.team || p.department) !== selectedTeam) return false;
+        if (selectedEmployeeId !== 'all' && p.employeeId !== selectedEmployeeId) return false;
+        return p.date.startsWith(yearMonthKey);
+      });
+
+      const contracts = monthRecords
+        .filter((p) => p.type === 'contract' && p.status === 'completed')
+        .reduce((sum, p) => sum + (p.contractCount || 1), 0);
+
+      const visitors = monthRecords
+        .filter((p) => p.type === 'visitor')
+        .reduce((sum, p) => sum + (p.visitorCount || 0), 0);
+
+      const cancelled = monthRecords
+        .filter((p) => p.type === 'contract' && p.status === 'cancelled')
+        .reduce((sum, p) => sum + (p.contractCount || 1), 0);
+
+      return {
+        month: `${parseInt(m, 10)}월`,
+        fullMonth: yearMonthKey,
+        contracts,
+        visitors,
+        cancelled,
+      };
+    });
+  }, [performances, selectedYear, currentYear, selectedTeam, selectedEmployeeId]);
+
+  const peakMonth = useMemo(() => {
+    let max = 0;
+    let peak = '';
+    monthlyTrendData.forEach((d) => {
+      if (d.contracts > max) {
+        max = d.contracts;
+        peak = d.month;
+      }
+    });
+    return max > 0 ? { month: peak, count: max } : null;
+  }, [monthlyTrendData]);
 
   // Handle Cancel Submission
   const handleConfirmCancel = async () => {

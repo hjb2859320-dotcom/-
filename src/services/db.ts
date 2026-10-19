@@ -327,6 +327,10 @@ export async function createUserProfile(profile: UserProfile): Promise<void> {
   } catch (err) {
     console.warn('Firestore createUserProfile fallback saved locally:', err);
   }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_users_updated'));
+  }
 }
 
 export async function updateUserProfile(
@@ -347,23 +351,65 @@ export async function updateUserProfile(
   } catch (err) {
     console.warn('Firestore updateUserProfile fallback saved locally:', err);
   }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_users_updated'));
+  }
+}
+
+export async function deleteUserProfile(uid: string): Promise<void> {
+  const cachedUsers = getLocalCache<UserProfile[]>('users', DEFAULT_USERS);
+  const updated = cachedUsers.filter((u) => u.uid !== uid);
+  setLocalCache('users', updated);
+
+  try {
+    await deleteDoc(doc(db, 'users', uid));
+  } catch (err) {
+    console.warn('Firestore deleteUserProfile fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_users_updated'));
+  }
 }
 
 export async function getAllUsers(): Promise<UserProfile[]> {
   const localUsers = getLocalCache<UserProfile[]>('users', DEFAULT_USERS);
   try {
-    const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
-    const snap = await getDocs(q);
+    const snap = await getDocs(collection(db, 'users'));
     if (!snap.empty) {
-      const users = snap.docs.map((d) => {
+      const dbUsers = snap.docs.map((d) => {
         const u = d.data() as UserProfile;
         if (!u.team && u.department) u.team = u.department;
         return u;
       });
+
       const mergedMap = new Map<string, UserProfile>();
+      // 1. Load local cache
       localUsers.forEach((u) => mergedMap.set(u.uid, u));
-      users.forEach((u) => mergedMap.set(u.uid, u));
+      // 2. Overlay Firestore documents (preserving any local credentials if db doc is older)
+      dbUsers.forEach((u) => {
+        const existing = mergedMap.get(u.uid);
+        if (!existing) {
+          mergedMap.set(u.uid, u);
+        } else {
+          mergedMap.set(u.uid, {
+            ...existing,
+            ...u,
+            loginId: u.loginId || existing.loginId,
+            loginPassword: u.loginPassword || existing.loginPassword,
+          });
+        }
+      });
+
       const merged = Array.from(mergedMap.values());
+      // Sort in-memory: pending applicants first, then createdAt desc
+      merged.sort((a, b) => {
+        if (a.status === 'pending' && b.status !== 'pending') return -1;
+        if (b.status === 'pending' && a.status !== 'pending') return 1;
+        return (b.createdAt || '').localeCompare(a.createdAt || '');
+      });
+
       setLocalCache('users', merged);
       return merged;
     }
@@ -600,6 +646,26 @@ export async function saveProjectSite(site: ProjectSite): Promise<void> {
     await setDoc(doc(db, 'projects', site.id), site);
   } catch (err) {
     console.warn('Firestore saveProjectSite fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_projects_updated'));
+  }
+}
+
+export async function deleteProjectSite(id: string): Promise<void> {
+  const current = getLocalCache('projects', DEFAULT_PROJECT_SITES);
+  const updated = current.filter((s) => s.id !== id);
+  setLocalCache('projects', updated);
+
+  try {
+    await deleteDoc(doc(db, 'projects', id));
+  } catch (err) {
+    console.warn('Firestore deleteProjectSite fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_projects_updated'));
   }
 }
 

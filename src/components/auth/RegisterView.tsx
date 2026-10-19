@@ -16,8 +16,8 @@ interface RegisterViewProps {
 }
 
 // Strict position choices per user instructions:
-// 대표, 이사, 본부장, 실장, 과장, 대리, 주임
-const POSITIONS: AllowedPosition[] = ['대표', '이사', '본부장', '실장', '과장', '대리', '주임'];
+// 대표, 이사, 본부장, 팀장, 실장, 과장, 대리, 주임
+const POSITIONS: AllowedPosition[] = ['대표', '이사', '본부장', '팀장', '실장', '과장', '대리', '주임'];
 
 export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => {
   const { registerProfile } = useAuth();

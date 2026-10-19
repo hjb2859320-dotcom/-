@@ -13,6 +13,7 @@ import {
   Copy,
   Edit2,
   Trash2,
+  RefreshCw,
   X,
   UserCheck,
   Send,
@@ -29,13 +30,14 @@ import {
   setUserAccountStatus,
   updateUserProfile,
   updateUserCredentials,
+  deleteUserProfile,
   getProjectSites,
   getCompanyTeams,
   registerEmployeeApplication,
 } from '../../services/db';
 import type { UserProfile, ProjectSite, CompanyTeam, AllowedPosition } from '../../types';
 
-const POSITIONS: AllowedPosition[] = ['대표', '이사', '본부장', '실장', '과장', '대리', '주임'];
+const POSITIONS: AllowedPosition[] = ['대표', '이사', '본부장', '팀장', '실장', '과장', '대리', '주임'];
 
 export const AdminEmployeeManagement: React.FC = () => {
   const { profile } = useAuth();
@@ -90,8 +92,40 @@ export const AdminEmployeeManagement: React.FC = () => {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const loadData = async () => {
-    setLoading(true);
+  // Delete modal
+  const [userToDelete, setUserToDelete] = useState<UserProfile | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return;
+    if (
+      userToDelete.loginId === 'admin' ||
+      userToDelete.uid === 'super-admin-root' ||
+      userToDelete.uid === profile?.uid
+    ) {
+      showToast('최고관리자 본인 계정은 삭제할 수 없습니다.');
+      setUserToDelete(null);
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await deleteUserProfile(userToDelete.uid);
+      await loadData();
+      showToast(`${userToDelete.name} 직원이 삭제되었습니다.`);
+      setUserToDelete(null);
+    } catch (err) {
+      console.error(err);
+      showToast('직원 삭제 중 오류가 발생했습니다.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const loadData = async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
     try {
       const [uList, sList, tList] = await Promise.all([
         getAllUsers(),
@@ -101,15 +135,29 @@ export const AdminEmployeeManagement: React.FC = () => {
       setUsers(uList || []);
       setProjectSites(sList || []);
       setCompanyTeams(tList || []);
+      if (isManual) showToast('직원 및 신청 목록을 새로고침했습니다.');
     } catch (err) {
       console.error(err);
+      if (isManual) showToast('새로고침 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
     loadData();
+
+    const handleUpdate = () => {
+      loadData();
+    };
+
+    window.addEventListener('leedo_users_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('leedo_users_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, []);
 
   const handleApprove = async (targetUser: UserProfile) => {
@@ -301,13 +349,24 @@ export const AdminEmployeeManagement: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
-        >
-          <UserPlus className="h-4 w-4 text-amber-400" />
-          <span>신규 직원 직접 등록</span>
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => loadData(true)}
+            disabled={refreshing}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+            title="직원 및 승인 신청 목록 새로고침"
+          >
+            <RefreshCw className={`h-4 w-4 text-slate-500 ${refreshing ? 'animate-spin text-amber-500' : ''}`} />
+            <span>새로고침</span>
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+          >
+            <UserPlus className="h-4 w-4 text-amber-400" />
+            <span>신규 직원 직접 등록</span>
+          </button>
+        </div>
       </div>
 
       {/* Pending Applicants Spotlight Card (if any pending) */}
@@ -394,6 +453,13 @@ export const AdminEmployeeManagement: React.FC = () => {
                       className="rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
                     >
                       반려
+                    </button>
+                    <button
+                      onClick={() => setUserToDelete(pUser)}
+                      className="rounded-xl border border-rose-200 bg-white p-2 text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
+                      title="신청 내역 삭제"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -586,6 +652,13 @@ export const AdminEmployeeManagement: React.FC = () => {
                               >
                                 반려
                               </button>
+                              <button
+                                onClick={() => setUserToDelete(u)}
+                                className="rounded-lg border border-rose-200 bg-white p-1.5 text-rose-500 hover:bg-rose-50 hover:text-rose-700 cursor-pointer"
+                                title="신청 내역 삭제"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
                             </>
                           ) : (
                             <>
@@ -642,6 +715,16 @@ export const AdminEmployeeManagement: React.FC = () => {
                               >
                                 {u.status === 'active' ? '차단' : '활성'}
                               </button>
+
+                              {!(u.loginId === 'admin' || u.uid === 'super-admin-root' || u.uid === profile?.uid) && (
+                                <button
+                                  onClick={() => setUserToDelete(u)}
+                                  className="rounded-lg border border-rose-200 bg-white p-1.5 text-rose-500 hover:bg-rose-50 hover:text-rose-700 cursor-pointer"
+                                  title="직원 삭제"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
                             </>
                           )}
                         </div>
@@ -1055,6 +1138,87 @@ export const AdminEmployeeManagement: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-rose-100 bg-rose-50 px-5 py-4 text-rose-900">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-rose-600" />
+                <h3 className="font-bold text-sm">직원 정보 삭제 확인</h3>
+              </div>
+              <button
+                onClick={() => setUserToDelete(null)}
+                className="text-rose-400 hover:text-rose-700 cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-3">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">성명 / 직급:</span>
+                  <span className="font-bold text-slate-900">
+                    {userToDelete.name} ({userToDelete.position})
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">소속 팀:</span>
+                  <span className="font-semibold text-slate-800">
+                    {userToDelete.team || userToDelete.department}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">접속 아이디:</span>
+                  <span className="font-mono font-bold text-blue-700">
+                    {userToDelete.loginId || '미생성'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">계정 상태:</span>
+                  <span className="font-semibold text-slate-800">
+                    {userToDelete.status === 'pending'
+                      ? '승인 대기'
+                      : userToDelete.status === 'active'
+                      ? '정상 승인'
+                      : userToDelete.status === 'rejected'
+                      ? '승인 거절'
+                      : '비활성화'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-rose-200 bg-rose-50/70 p-3 text-xs text-rose-800 leading-relaxed">
+                해당 직원을 시스템에서 <strong>영구히 삭제</strong>하시겠습니까?
+                <br />
+                삭제 후에는 해당 계정으로 로그인할 수 없으며 이 작업은 되돌릴 수 없습니다.
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setUserToDelete(null)}
+                  disabled={deleting}
+                  className="flex-1 rounded-xl border border-slate-300 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteConfirm}
+                  disabled={deleting}
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-rose-500 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>{deleting ? '삭제 중...' : '직원 삭제 실행'}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
