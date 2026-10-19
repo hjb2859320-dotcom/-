@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft,
-  Building2,
   CheckCircle2,
-  Shield,
-  User,
-  Phone,
-  Mail,
-  Briefcase,
-  BadgeAlert,
   AlertCircle,
   Crown,
+  UserCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getCompanyTeams, getProjectSites } from '../../services/db';
@@ -22,22 +16,22 @@ interface RegisterViewProps {
 }
 
 // Strict position choices per user instructions:
-// "직원 직급에는 대표, 이사, 본부장, 실장, 과장, 대리, 주임 으로 구분되게 해주고"
+// 대표, 이사, 본부장, 실장, 과장, 대리, 주임
 const POSITIONS: AllowedPosition[] = ['대표', '이사', '본부장', '실장', '과장', '대리', '주임'];
 
 export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => {
-  const { registerProfile, firebaseUser } = useAuth();
+  const { registerProfile } = useAuth();
   const [teams, setTeams] = useState<CompanyTeam[]>([]);
   const [projectSites, setProjectSites] = useState<ProjectSite[]>([]);
 
   const [formData, setFormData] = useState({
-    name: firebaseUser?.displayName || '',
-    employeeNumber: '',
+    name: '',
     team: '영업1팀',
     assignedSite: '힐스테이트 센트럴 송도',
     position: '과장' as AllowedPosition,
     phoneNumber: '',
-    email: firebaseUser?.email || '',
+    email: '',
+    applicationNote: '',
     agreePrivacy: false,
   });
 
@@ -66,11 +60,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
     setError(null);
 
     if (!formData.name.trim()) {
-      setError('이름을 입력해 주세요.');
-      return;
-    }
-    if (!formData.employeeNumber.trim()) {
-      setError('사번(직원 식별번호)을 입력해 주세요. 예: LD-2026-0042');
+      setError('성명을 입력해 주세요.');
       return;
     }
     if (!formData.phoneNumber.trim()) {
@@ -78,7 +68,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
       return;
     }
     if (!formData.agreePrivacy) {
-      setError('개인정보 수집 및 이용에 동의하셔야 등록 신청이 가능합니다.');
+      setError('개인정보 수집 및 사내 이용 동의에 체크해 주세요.');
       return;
     }
 
@@ -86,12 +76,13 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
     try {
       await registerProfile({
         name: formData.name.trim(),
-        employeeNumber: formData.employeeNumber.trim().toUpperCase(),
         team: formData.team,
         department: formData.team,
         assignedSite: formData.assignedSite,
         position: formData.position,
         phoneNumber: formData.phoneNumber.trim(),
+        email: formData.email.trim(),
+        applicationNote: formData.applicationNote.trim(),
       });
       setIsSuccess(true);
     } catch (err: unknown) {
@@ -113,17 +104,18 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
           </div>
           <h2 className="mt-4 text-xl font-bold text-white">직원 등록 신청 완료</h2>
           <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-            사번 <span className="font-bold text-amber-400">{formData.employeeNumber}</span> 등록 신청이 정상 접수되었습니다.
+            <span className="font-bold text-amber-400">{formData.name}</span>님의 직원 등록 신청이 정상 접수되었습니다.
             <br />
-            관리자가 신원 및 소속을 검토한 후 승인하면 모든 실적 관리 포털 기능을 정상 이용하실 수 있습니다.
+            관리자가 확인 후 승인하면, 전용 <strong>개인 아이디와 비밀번호가 발급 및 배포</strong>됩니다.
           </p>
-          <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left text-xs space-y-1.5 text-slate-300">
+
+          <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left text-xs space-y-2 text-slate-300">
             <div className="flex justify-between">
-              <span className="text-slate-400">직원명 / 직급:</span>
+              <span className="text-slate-400">직원 성명 / 직급:</span>
               <span className="font-semibold text-white">
                 {formData.name} {formData.position}
                 {isExecutiveCandidate && (
-                  <span className="ml-1 text-[10px] text-amber-400 font-bold">(임원 권한 예정)</span>
+                  <span className="ml-1 text-[10px] text-amber-400 font-bold">(임원 권한)</span>
                 )}
               </span>
             </div>
@@ -132,14 +124,23 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
               <span className="font-semibold text-white">{formData.team}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">담당 분양 현장:</span>
-              <span className="font-semibold text-white">{formData.assignedSite}</span>
+              <span className="text-slate-400">연락처:</span>
+              <span className="font-semibold text-white">{formData.phoneNumber}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-400">계정 상태:</span>
-              <span className="font-bold text-amber-400">관리자 승인 대기 중</span>
+            <div className="flex justify-between pt-1 border-t border-slate-800">
+              <span className="text-slate-400">처리 상태:</span>
+              <span className="font-bold text-amber-400 flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+                관리자 승인 대기
+              </span>
             </div>
           </div>
+
+          <div className="mt-5 rounded-xl border border-blue-500/20 bg-blue-950/30 p-3 text-left text-[11px] text-blue-200 leading-relaxed">
+            <div className="font-bold text-blue-300 mb-0.5">안내 사항</div>
+            관리자가 승인 처리 시 발급되는 접속 아이디와 비밀번호를 전달받으신 후 로그인해 주세요.
+          </div>
+
           <button
             onClick={onBackToLogin}
             className="mt-6 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-500 transition-colors cursor-pointer"
@@ -165,12 +166,12 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
         <div className="border-b border-slate-700/80 pb-4">
           <div className="flex items-center justify-between">
             <LeedoLogo size="md" showText={true} lightText={true} />
-            <span className="rounded bg-amber-400/20 px-2 py-0.5 text-[11px] font-bold text-amber-300">
-              신규 사번 등록
+            <span className="rounded bg-amber-400/20 px-2.5 py-1 text-xs font-bold text-amber-300">
+              직원 등록 신청
             </span>
           </div>
           <p className="mt-2 text-xs text-slate-400">
-            실적 관리 시스템을 이용하기 위해 본인의 사번과 소속 팀, 직급 정보를 입력해 주세요.
+            실적 관리 시스템을 이용하기 위해 본인의 소속 팀, 직급 및 연락처 정보를 입력해 주세요.
           </p>
         </div>
 
@@ -193,21 +194,21 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="예: 홍길동"
-                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
-                사번 / 직원 식별번호 <span className="text-rose-400">*</span>
+                휴대전화 번호 <span className="text-rose-400">*</span>
               </label>
               <input
-                type="text"
+                type="tel"
                 required
-                value={formData.employeeNumber}
-                onChange={(e) => setFormData({ ...formData, employeeNumber: e.target.value })}
-                placeholder="예: LD-2026-0042"
-                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none uppercase font-mono"
+                value={formData.phoneNumber}
+                onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                placeholder="010-0000-0000"
+                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
               />
             </div>
           </div>
@@ -220,13 +221,23 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
               <select
                 value={formData.team}
                 onChange={(e) => setFormData({ ...formData, team: e.target.value })}
-                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3 py-2.5 text-xs text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3 py-2.5 text-xs text-white focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
               >
-                {teams.map((t) => (
-                  <option key={t.id} value={t.name}>
-                    {t.name}
-                  </option>
-                ))}
+                {teams.length > 0 ? (
+                  teams.map((t) => (
+                    <option key={t.id} value={t.name}>
+                      {t.name}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="영업1팀">영업1팀</option>
+                    <option value="영업2팀">영업2팀</option>
+                    <option value="분양기획팀">분양기획팀</option>
+                    <option value="마케팅팀">마케팅팀</option>
+                    <option value="경영관리팀">경영관리팀</option>
+                  </>
+                )}
               </select>
             </div>
 
@@ -239,7 +250,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
                 onChange={(e) =>
                   setFormData({ ...formData, position: e.target.value as AllowedPosition })
                 }
-                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3 py-2.5 text-xs text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none font-bold"
+                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3 py-2.5 text-xs text-white focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none font-bold"
               >
                 {POSITIONS.map((pos) => (
                   <option key={pos} value={pos}>
@@ -252,48 +263,49 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
 
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">
-              담당 분양 현장 <span className="text-rose-400">*</span>
+              담당 분양 현장
             </label>
             <select
               value={formData.assignedSite}
               onChange={(e) => setFormData({ ...formData, assignedSite: e.target.value })}
-              className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3 py-2.5 text-xs text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3 py-2.5 text-xs text-white focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
             >
-              {projectSites.map((site) => (
-                <option key={site.id} value={site.name}>
-                  {site.name}
-                </option>
-              ))}
+              {projectSites.length > 0 ? (
+                projectSites.map((site) => (
+                  <option key={site.id} value={site.name}>
+                    {site.name}
+                  </option>
+                ))
+              ) : (
+                <option value="힐스테이트 센트럴 송도">힐스테이트 센트럴 송도</option>
+              )}
             </select>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                휴대전화 번호 <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="tel"
-                required
-                value={formData.phoneNumber}
-                onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                placeholder="010-0000-0000"
-                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
+              이메일 주소 (선택)
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="예: user@leedo.co.kr"
+              className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
+            />
+          </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                사내 또는 연락 이메일
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="user@leedo.co.kr"
-                className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
+              신청 메모 / 비고 (선택)
+            </label>
+            <input
+              type="text"
+              value={formData.applicationNote}
+              onChange={(e) => setFormData({ ...formData, applicationNote: e.target.value })}
+              placeholder="예: 영업1팀 분양상담사 신규 입사 신청"
+              className="w-full rounded-xl border border-slate-600 bg-slate-900/80 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
+            />
           </div>
 
           {isExecutiveCandidate && (
@@ -312,10 +324,10 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
                 type="checkbox"
                 checked={formData.agreePrivacy}
                 onChange={(e) => setFormData({ ...formData, agreePrivacy: e.target.checked })}
-                className="mt-0.5 h-4 w-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500"
+                className="mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-800 text-blue-600 focus:ring-blue-500 cursor-pointer"
               />
               <span className="leading-relaxed text-[11px] text-slate-300">
-                [필수] (주)이도 사내 인트라넷 이용을 위한 직원 식별정보(성명, 사번, 연락처, 소속 팀, 분양현장 등) 수집 및 이용에 동의합니다.
+                [필수] (주)이도 사내 인트라넷 이용을 위한 직원 식별정보(성명, 연락처, 소속 팀, 분양현장 등) 수집 및 이용에 동의합니다.
               </span>
             </label>
           </div>
@@ -323,9 +335,9 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-xl bg-blue-600 py-3 text-sm font-bold text-white shadow-md hover:bg-blue-500 active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
+            className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 py-3 text-sm font-bold text-slate-950 shadow-md hover:from-amber-400 hover:to-amber-500 active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
           >
-            {submitting ? '등록 신청 중...' : '직원 등록 신청 완료 (승인 대기)'}
+            {submitting ? '신청 정보 접수 중...' : '직원 등록 신청 접수하기'}
           </button>
         </form>
       </div>

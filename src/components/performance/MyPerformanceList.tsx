@@ -555,9 +555,9 @@ export const MyPerformanceList: React.FC<MyPerformanceListProps> = ({ onOpenRegi
                   <span className="font-mono text-slate-700">{selectedRecordForDetail.id}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
-                  <span className="text-slate-500">등록자 / 사번:</span>
+                  <span className="text-slate-500">등록자 성명:</span>
                   <span className="font-bold text-slate-900">
-                    {selectedRecordForDetail.employeeName} ({selectedRecordForDetail.employeeNumber})
+                    {selectedRecordForDetail.employeeName}
                   </span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200/80 pb-1.5">

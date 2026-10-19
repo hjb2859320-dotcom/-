@@ -240,10 +240,10 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
       if (searchKeyword.trim()) {
         const kw = searchKeyword.toLowerCase();
         const matchName = item.user.name.toLowerCase().includes(kw);
-        const matchNum = item.user.employeeNumber.toLowerCase().includes(kw);
+        const matchId = (item.user.loginId || item.user.employeeNumber || '').toLowerCase().includes(kw);
         const matchTeam = (item.user.team || '').toLowerCase().includes(kw);
         const matchPos = (item.user.position || '').toLowerCase().includes(kw);
-        return matchName || matchNum || matchTeam || matchPos;
+        return matchName || matchId || matchTeam || matchPos;
       }
       return true;
     })
@@ -613,7 +613,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
             <input
               type="text"
-              placeholder={activeTab === 'employees' ? '직원명, 사번, 팀 검색...' : '성명, 동·호수, 메모 검색...'}
+              placeholder={activeTab === 'employees' ? '직원명, 팀 검색...' : '성명, 동·호수, 메모 검색...'}
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-1.5 text-xs text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none"
@@ -643,7 +643,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
               <thead className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
                 <tr>
                   <th className="px-4 py-3 text-center w-12">순위</th>
-                  <th className="px-4 py-3">직원 정보 (성명 / 직급 / 사번)</th>
+                  <th className="px-4 py-3">직원 정보 (성명 / 직급)</th>
                   <th className="px-4 py-3">소속 팀</th>
                   <th className="px-4 py-3 text-center bg-blue-50/60 text-blue-900">
                     유효 계약 (완료)
@@ -704,8 +704,8 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                                   </span>
                                 )}
                               </div>
-                              <div className="text-[10px] text-slate-400 font-mono">
-                                {item.user.employeeNumber} • {item.user.phoneNumber}
+                              <div className="text-[10px] text-slate-400 font-medium">
+                                {item.user.phoneNumber}
                               </div>
                             </div>
                           </div>
@@ -1139,8 +1139,8 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                   <div className="font-bold text-slate-900 mt-0.5">
                     {selectedRecordForDetail.employeeName} ({selectedRecordForDetail.team})
                   </div>
-                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-                    사번: {selectedRecordForDetail.employeeNumber}
+                  <div className="text-[10px] text-slate-500 mt-0.5">
+                    구분: {selectedRecordForDetail.type === 'contract' ? '계약' : '내방객'}
                   </div>
                 </div>
 

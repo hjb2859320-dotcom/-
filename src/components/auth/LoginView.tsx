@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import {
-  Building2,
   Lock,
+  User,
   ShieldCheck,
-  UserCheck,
-  Clock,
   ArrowRight,
-  Sparkles,
   AlertCircle,
-  Crown,
+  Eye,
+  EyeOff,
+  UserPlus,
+  KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { LeedoLogo } from '../common/LeedoLogo';
@@ -18,20 +18,38 @@ interface LoginViewProps {
 }
 
 export const LoginView: React.FC<LoginViewProps> = ({ onGoToRegister }) => {
-  const { signInWithGoogle, setDemoProfile, loading } = useAuth();
+  const { loginWithCredentials, loading } = useAuth();
+  const [loginId, setLoginId] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [signingIn, setSigningIn] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleGoogleLogin = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setErrorMsg(null);
-    setSigningIn(true);
+
+    if (!loginId.trim()) {
+      setErrorMsg('아이디를 입력해 주세요.');
+      return;
+    }
+    if (!password.trim()) {
+      setErrorMsg('비밀번호를 입력해 주세요.');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      await signInWithGoogle();
+      const res = await loginWithCredentials(loginId.trim(), password.trim(), rememberMe);
+      if (!res.success) {
+        setErrorMsg(res.error || '아이디 또는 비밀번호가 일치하지 않습니다.');
+      }
     } catch (err: unknown) {
       console.error(err);
-      setErrorMsg('Google 로그인 중 오류가 발생했거나 창이 닫혔습니다. 다시 시도해 주세요.');
+      setErrorMsg('로그인 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
     } finally {
-      setSigningIn(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -60,146 +78,103 @@ export const LoginView: React.FC<LoginViewProps> = ({ onGoToRegister }) => {
           <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-blue-500/30 bg-blue-950/40 p-3 text-xs text-blue-200">
             <ShieldCheck className="h-4 w-4 shrink-0 text-blue-400 mt-0.5" />
             <p className="leading-relaxed">
-              본 시스템은 일반 공개 사이트가 아닌 이도 소속 직원 전용 인트라넷입니다. 관리자 승인을 득한 사번만 이용 가능합니다.
+              본 시스템은 이도 소속 임직원 전용 인트라넷입니다. 관리자 승인을 받은 발급 계정으로 로그인해 주세요.
             </p>
           </div>
 
           {errorMsg && (
-            <div className="mt-4 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-950/40 p-3 text-xs text-rose-300">
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
-              <span>{errorMsg}</span>
+            <div className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/40 bg-rose-950/50 p-3 text-xs text-rose-300">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
+              <span className="leading-relaxed">{errorMsg}</span>
             </div>
           )}
 
-          {/* Login Actions */}
-          <div className="mt-6 space-y-3">
-            <button
-              onClick={handleGoogleLogin}
-              disabled={signingIn || loading}
-              className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-600 bg-white px-4 py-3 text-sm font-bold text-slate-800 shadow-md transition-all hover:bg-slate-100 active:scale-[0.99] disabled:opacity-60 cursor-pointer"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+          {/* Credentials Login Form */}
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                아이디
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={loginId}
+                  onChange={(e) => setLoginId(e.target.value)}
+                  placeholder="아이디를 입력하세요"
+                  autoComplete="username"
+                  className="w-full rounded-xl border border-slate-600 bg-slate-900/90 pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
                 />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-              <span>{signingIn ? '로그인 처리 중...' : 'Google 계정으로 사내 로그인'}</span>
-            </button>
+                <User className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+              </div>
+            </div>
 
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                비밀번호
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="비밀번호를 입력하세요"
+                  autoComplete="current-password"
+                  className="w-full rounded-xl border border-slate-600 bg-slate-900/90 pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
+                />
+                <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-2.5 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                  title={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Auto Login Checkbox */}
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-amber-500 focus:ring-amber-400 cursor-pointer accent-amber-500"
+                />
+                <span className="font-medium text-slate-300">자동 로그인</span>
+              </label>
+              <span className="text-[11px] text-slate-500">안전한 세션 유지</span>
+            </div>
+
+            {/* Login Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting || loading}
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 active:scale-[0.99] transition-all disabled:opacity-60 cursor-pointer"
+            >
+              <KeyRound className="h-4 w-4" />
+              <span>{isSubmitting ? '로그인 확인 중...' : '사내 시스템 로그인'}</span>
+            </button>
+          </form>
+
+          {/* Register Application Button */}
+          <div className="mt-5 pt-4 border-t border-slate-700/80">
             <button
               onClick={onGoToRegister}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-sm font-semibold text-slate-200 transition-all hover:bg-slate-700/80 cursor-pointer"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition-all cursor-pointer"
             >
-              <span>신규 직원 등록 신청 (사번 등록)</span>
-              <ArrowRight className="h-4 w-4 text-slate-400" />
+              <UserPlus className="h-3.5 w-3.5 text-amber-400" />
+              <span>신규 직원 등록 신청</span>
+              <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
             </button>
           </div>
 
-          {/* Quick Demo Profiles Evaluator Selector */}
-          <div className="mt-7 pt-5 border-t border-slate-700/80">
-            <div className="flex items-center justify-between text-xs font-bold text-amber-400 mb-3">
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" />
-                평가자용 1초 원클릭 역할 체험
-              </span>
-              <span className="text-[11px] text-slate-400">바로 로그인</span>
-            </div>
-
-            <div className="grid grid-cols-1 gap-2">
-              {/* Executive */}
-              <button
-                onClick={() => setDemoProfile('executive')}
-                className="flex items-center justify-between rounded-xl border border-amber-500/40 bg-amber-950/30 p-2.5 text-left text-xs text-amber-100 hover:bg-amber-900/40 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 text-slate-950 font-black text-xs">
-                    <Crown className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>이도원 대표이사 (대표 직급)</span>
-                      <span className="rounded bg-amber-400 text-slate-950 text-[9px] px-1 font-black">
-                        임원
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-amber-300">
-                      대표 직급으로 관리자 전용 시스템도 함께 열람
-                    </div>
-                  </div>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-amber-400" />
-              </button>
-
-              {/* Admin */}
-              <button
-                onClick={() => setDemoProfile('admin')}
-                className="flex items-center justify-between rounded-xl border border-indigo-500/30 bg-indigo-950/30 p-2.5 text-left text-xs text-indigo-100 hover:bg-indigo-900/40 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-[11px]">
-                    관
-                  </div>
-                  <div>
-                    <div className="font-bold text-white">김도현 관리자 (경영관리팀)</div>
-                    <div className="text-[10px] text-indigo-300">직원 승인, 팀 관리, 전체 실적, 엑셀 다운로드</div>
-                  </div>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-indigo-400" />
-              </button>
-
-              {/* Approved Employee */}
-              <button
-                onClick={() => setDemoProfile('employee')}
-                className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-2.5 text-left text-xs text-emerald-100 hover:bg-emerald-900/40 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold text-[11px]">
-                    직
-                  </div>
-                  <div>
-                    <div className="font-bold text-white">박서준 과장 (영업1팀)</div>
-                    <div className="text-[10px] text-emerald-300">계약/내방 실적 등록, 자료실, 개인일정표</div>
-                  </div>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-emerald-400" />
-              </button>
-
-              {/* Pending Employee */}
-              <button
-                onClick={() => setDemoProfile('pending')}
-                className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/50 p-2.5 text-left text-xs text-slate-300 hover:bg-slate-900/80 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-600 text-white font-bold text-[11px]">
-                    대
-                  </div>
-                  <div>
-                    <div className="font-bold text-white">이지은 대리 (영업2팀)</div>
-                    <div className="text-[10px] text-slate-400">신규 등록 후 관리자 승인 대기 화면 체험</div>
-                  </div>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
-              </button>
-            </div>
-          </div>
-
-          {/* Footer note */}
-          <div className="mt-6 text-center text-[11px] text-slate-500">
-            주식회사 이도 | 사업자등록번호: 214-88-92014 <br />
-            서울특별시 강남구 테헤란로 분양사업본부
+          {/* Footer note: strictly '주식회사 이도' */}
+          <div className="mt-7 text-center text-xs font-semibold text-slate-500 tracking-wider">
+            주식회사 이도
           </div>
         </div>
       </div>

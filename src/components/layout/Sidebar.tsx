@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'notices', label: '사내 공지사항', icon: Bell },
     { id: 'events', label: '프로모션 & 이벤트', icon: Calendar },
     { id: 'employee_of_the_month', label: '이달의 우수직원', icon: Award },
-    { id: 'profile', label: '내 정보 및 사번', icon: User },
+    { id: 'profile', label: '내 계정 정보', icon: User },
   ];
 
   const adminMenuItems = [
@@ -116,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="text-slate-300">{profile?.name}</span>
           </div>
           <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
-            <span>사번: {profile?.employeeNumber || 'LD-2024-0000'}</span>
+            <span>아이디: {profile?.loginId || 'leedo'}</span>
             <span className="text-emerald-400 font-semibold">정규 승인</span>
           </div>
         </div>

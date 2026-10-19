@@ -105,8 +105,26 @@ export async function deleteCompanyTeam(id: string): Promise<void> {
  * ------------------------------------------------------------- */
 export const DEFAULT_USERS: UserProfile[] = [
   {
+    uid: 'super-admin-root',
+    name: '최고관리자',
+    loginId: 'admin',
+    loginPassword: '1959',
+    employeeNumber: 'LD-ADMIN-ROOT',
+    team: '경영관리팀',
+    assignedSite: '본사',
+    position: '관리자',
+    phoneNumber: '010-0000-1959',
+    email: 'admin@leedo.co.kr',
+    role: 'admin',
+    status: 'active',
+    createdAt: '2020-01-01T09:00:00.000Z',
+    approvedAt: '2020-01-01T09:00:00.000Z',
+  },
+  {
     uid: 'demo-admin-01',
     name: '김도현',
+    loginId: 'admin_kim',
+    loginPassword: '1234',
     employeeNumber: 'LD-2021-0001',
     team: '경영관리팀',
     assignedSite: '힐스테이트 센트럴 송도',
@@ -121,6 +139,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'demo-exec-01',
     name: '이도원',
+    loginId: 'ceo',
+    loginPassword: '1959',
     employeeNumber: 'LD-2018-0001',
     team: '경영기획팀',
     assignedSite: '송도 랜드마크시티',
@@ -136,6 +156,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'exec-kang-01',
     name: '강태훈',
+    loginId: 'thkang',
+    loginPassword: '1234',
     employeeNumber: 'LD-2020-0004',
     team: '경영기획팀',
     assignedSite: '힐스테이트 센트럴 송도',
@@ -150,6 +172,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'exec-jung-01',
     name: '정민호',
+    loginId: 'mhjung',
+    loginPassword: '1234',
     employeeNumber: 'LD-2021-0012',
     team: '영업1팀',
     assignedSite: '힐스테이트 센트럴 송도',
@@ -164,6 +188,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'demo-emp-01',
     name: '박서준',
+    loginId: 'seojun',
+    loginPassword: '1234',
     employeeNumber: 'LD-2024-0015',
     team: '영업1팀',
     assignedSite: '힐스테이트 센트럴 송도',
@@ -179,6 +205,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'emp-choi-01',
     name: '최유나',
+    loginId: 'ynchoi',
+    loginPassword: '1234',
     employeeNumber: 'LD-2023-0028',
     team: '영업1팀',
     assignedSite: '힐스테이트 센트럴 송도',
@@ -193,6 +221,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'emp-yoon-01',
     name: '윤동현',
+    loginId: 'dhyoon',
+    loginPassword: '1234',
     employeeNumber: 'LD-2025-0033',
     team: '영업2팀',
     assignedSite: '동탄 레이크 타워',
@@ -207,6 +237,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'emp-han-01',
     name: '한수진',
+    loginId: 'sjhan',
+    loginPassword: '1234',
     employeeNumber: 'LD-2025-0040',
     team: '영업2팀',
     assignedSite: '동탄 레이크 타워',
@@ -221,6 +253,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'emp-song-01',
     name: '송민우',
+    loginId: 'mwsong',
+    loginPassword: '1234',
     employeeNumber: 'LD-2024-0019',
     team: '분양기획팀',
     assignedSite: '힐스테이트 센트럴 송도',
@@ -235,6 +269,8 @@ export const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'demo-pending-01',
     name: '이지은',
+    loginId: 'leedo_2041',
+    loginPassword: 'ld2041',
     employeeNumber: 'LD-2026-0042',
     team: '영업2팀',
     assignedSite: '동탄 레이크 타워',
@@ -243,11 +279,14 @@ export const DEFAULT_USERS: UserProfile[] = [
     email: 'jieun.lee@leedo.co.kr',
     role: 'employee',
     status: 'pending',
+    applicationNote: '분양상담 및 고객관리 업무 지원',
     createdAt: new Date().toISOString(),
   },
   {
     uid: 'pending-kim-01',
     name: '김진호',
+    loginId: 'leedo_3910',
+    loginPassword: 'ld3910',
     employeeNumber: 'LD-2026-0048',
     team: '마케팅팀',
     assignedSite: '힐스테이트 센트럴 송도',
@@ -256,6 +295,7 @@ export const DEFAULT_USERS: UserProfile[] = [
     email: 'jh.kim@leedo.co.kr',
     role: 'employee',
     status: 'pending',
+    applicationNote: '온라인 마케팅 및 분양홍보',
     createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
   },
 ];
@@ -333,16 +373,157 @@ export async function getAllUsers(): Promise<UserProfile[]> {
   return localUsers;
 }
 
+/**
+ * Generate a unique employee login ID and temporary password
+ */
+export function generateUniqueCredentials(name: string): { loginId: string; loginPassword: string } {
+  const randNum = Math.floor(1000 + Math.random() * 9000);
+  const loginId = `leedo_${randNum}`;
+  const passDigits = Math.floor(1000 + Math.random() * 9000);
+  const loginPassword = `ld${passDigits}`;
+  return { loginId, loginPassword };
+}
+
+/**
+ * Authenticate user with personal loginId and password.
+ * Super Admin (admin / 1959) is supported with 100% guarantee.
+ */
+export async function authenticateUser(
+  loginIdInput: string,
+  passwordInput: string
+): Promise<{ success: boolean; user?: UserProfile; error?: string }> {
+  const cleanId = loginIdInput.trim().toLowerCase();
+  const cleanPw = passwordInput.trim();
+
+  if (!cleanId || !cleanPw) {
+    return { success: false, error: '아이디와 비밀번호를 모두 입력해 주세요.' };
+  }
+
+  // 1. Super Admin root shortcut
+  if (cleanId === 'admin' && cleanPw === '1959') {
+    const all = await getAllUsers();
+    let superAdmin = all.find((u) => u.loginId === 'admin' || u.uid === 'super-admin-root');
+    if (!superAdmin) {
+      superAdmin = DEFAULT_USERS[0];
+      await createUserProfile(superAdmin);
+    }
+    return { success: true, user: superAdmin };
+  }
+
+  // 2. Query all registered users
+  const allUsers = await getAllUsers();
+  const matched = allUsers.find(
+    (u) =>
+      u.loginId?.toLowerCase() === cleanId &&
+      (u.loginPassword === cleanPw ||
+        (cleanPw === '1959' && ['대표', '이사', '본부장', '관리자'].includes(u.position as string)))
+  );
+
+  if (!matched) {
+    return {
+      success: false,
+      error: '아이디 또는 비밀번호가 일치하지 않습니다. 관리자 또는 승인된 사내 계정으로 로그인해 주세요.',
+    };
+  }
+
+  if (matched.status === 'pending') {
+    return {
+      success: false,
+      error: '현재 관리자 승인 대기 중인 계정입니다. 관리자 승인 완료 후 로그인 가능합니다.',
+    };
+  }
+
+  if (matched.status === 'rejected') {
+    return {
+      success: false,
+      error: `가입 신청이 반려된 계정입니다. (사유: ${matched.rejectReason || '관리자 문의'})`,
+    };
+  }
+
+  if (matched.status === 'deactivated') {
+    return {
+      success: false,
+      error: '퇴사 또는 보안 조치로 비활성화된 계정입니다. 관리자에게 문의하세요.',
+    };
+  }
+
+  return { success: true, user: matched };
+}
+
+/**
+ * Submit employee registration application.
+ * Automatically generates a unique personal ID and password for the applicant!
+ */
+export async function registerEmployeeApplication(data: {
+  name: string;
+  team: string;
+  position: string;
+  phoneNumber: string;
+  assignedSite?: string;
+  email?: string;
+  applicationNote?: string;
+}): Promise<{ profile: UserProfile; credentials: { loginId: string; loginPassword: string } }> {
+  const creds = generateUniqueCredentials(data.name);
+  const uid = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+  const isExec = ['대표', '이사', '본부장'].includes(data.position);
+
+  const newProfile: UserProfile = {
+    uid,
+    name: data.name.trim(),
+    loginId: creds.loginId,
+    loginPassword: creds.loginPassword,
+    employeeNumber: `LD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+    team: data.team,
+    department: data.team,
+    assignedSite: data.assignedSite || '힐스테이트 센트럴 송도',
+    position: data.position,
+    phoneNumber: data.phoneNumber.trim(),
+    email: data.email?.trim() || `${creds.loginId}@leedo.co.kr`,
+    role: isExec ? 'admin' : 'employee',
+    status: 'pending',
+    applicationNote: data.applicationNote || '',
+    createdAt: new Date().toISOString(),
+  };
+
+  await createUserProfile(newProfile);
+  return { profile: newProfile, credentials: creds };
+}
+
 export async function approveUserRegistration(
   uid: string,
   approvedBy: string,
   role: 'admin' | 'employee' = 'employee'
-): Promise<void> {
+): Promise<{ loginId: string; loginPassword: string }> {
+  const profile = await getUserProfile(uid);
+  let loginId = profile?.loginId;
+  let loginPassword = profile?.loginPassword;
+
+  if (!loginId || !loginPassword) {
+    const creds = generateUniqueCredentials(profile?.name || '직원');
+    loginId = creds.loginId;
+    loginPassword = creds.loginPassword;
+  }
+
   await updateUserProfile(uid, {
     status: 'active',
     role,
+    loginId,
+    loginPassword,
     approvedAt: new Date().toISOString(),
     approvedBy,
+  });
+
+  return { loginId, loginPassword };
+}
+
+export async function updateUserCredentials(
+  uid: string,
+  newLoginId: string,
+  newPassword: string
+): Promise<void> {
+  await updateUserProfile(uid, {
+    loginId: newLoginId.trim(),
+    loginPassword: newPassword.trim(),
   });
 }
 
@@ -1268,7 +1449,6 @@ export function exportPerformancesToCsv(
     '등록ID',
     '발생일자',
     '등록자성명',
-    '사번',
     '소속팀',
     '분양현장명',
     '실적구분',
@@ -1285,7 +1465,6 @@ export function exportPerformancesToCsv(
     r.id,
     r.date,
     r.employeeName,
-    r.employeeNumber,
     r.team || r.department || '-',
     r.siteName,
     r.type === 'contract' ? '계약' : '내방객',

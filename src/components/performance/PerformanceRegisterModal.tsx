@@ -147,7 +147,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
         id: perfId,
         employeeId: profile.uid,
         employeeName: profile.name,
-        employeeNumber: profile.employeeNumber,
+        employeeNumber: profile.employeeNumber || profile.loginId || 'EMP',
         team: profile.team || profile.department || '영업1팀',
         siteName,
         type: perfType,

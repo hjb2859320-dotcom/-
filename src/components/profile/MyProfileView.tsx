@@ -95,8 +95,8 @@ export const MyProfileView: React.FC = () => {
 
           <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
             <div>
-              <div className="text-[10px] text-slate-400">사번 (Employee ID)</div>
-              <div className="font-mono font-bold text-white text-sm">{profile?.employeeNumber}</div>
+              <div className="text-[10px] text-slate-400">접속 아이디 (ID)</div>
+              <div className="font-mono font-bold text-white text-sm">{profile?.loginId || '-'}</div>
             </div>
             <div className="text-right">
               <div className="text-[10px] text-slate-400">승인 일자</div>
@@ -131,9 +131,9 @@ export const MyProfileView: React.FC = () => {
             </div>
 
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="text-slate-500 block mb-1">사번</span>
+              <span className="text-slate-500 block mb-1">접속 아이디</span>
               <span className="font-mono font-bold text-blue-700 text-sm">
-                {profile?.employeeNumber}
+                {profile?.loginId || '-'}
               </span>
             </div>
 

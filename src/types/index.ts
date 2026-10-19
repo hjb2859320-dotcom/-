@@ -15,15 +15,18 @@ export type AllowedPosition =
 export interface UserProfile {
   uid: string;
   name: string;
-  employeeNumber: string; // 사번 e.g. LD-2024-0012
+  loginId?: string; // 개인 접속 아이디
+  loginPassword?: string; // 개인 접속 비밀번호
+  employeeNumber?: string; // 시스템 내부 식별코드
   team: string; // 소속 팀 e.g. 영업1팀, 영업2팀, 분양기획팀
   department?: string; // 하위 호환성 유지
-  assignedSite: string; // 담당 분양 현장 e.g. 힐스테이트 센트럴 송도
+  assignedSite: string; // 담당 분양 현장
   position: AllowedPosition | string; // 직급: 대표, 이사, 본부장, 실장, 과장, 대리, 주임, 관리자
   phoneNumber: string; // 휴대전화 번호
   email: string;
   role: UserRole;
   status: AccountStatus;
+  applicationNote?: string; // 등록 신청 시 메모
   rejectReason?: string;
   createdAt: string;
   updatedAt?: string;

@@ -1,107 +1,48 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut as fbSignOut,
-  onAuthStateChanged,
-  User as FirebaseUser,
-} from 'firebase/auth';
+import { signOut as fbSignOut, User as FirebaseUser } from 'firebase/auth';
 import { auth, testFirestoreConnection } from '../lib/firebase';
 import {
   getUserProfile,
   createUserProfile,
-  ADMIN_EMAIL,
-  seedInitialDataIfEmpty,
+  authenticateUser,
+  DEFAULT_USERS,
 } from '../services/db';
-import type { UserProfile, AllowedPosition } from '../types';
+import type { UserProfile } from '../types';
 
 interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   profile: UserProfile | null;
   loading: boolean;
-  isAdmin: boolean; // Includes role === 'admin' OR position is 대표, 이사, 본부장
+  isAdmin: boolean; // Includes role === 'admin' OR position is 대표, 이사, 본부장, 관리자
   isApproved: boolean;
   isPending: boolean;
   isRejected: boolean;
   isDeactivated: boolean;
-  signInWithGoogle: () => Promise<void>;
-  registerProfile: (data: Omit<UserProfile, 'uid' | 'email' | 'role' | 'status' | 'createdAt'>) => Promise<void>;
+  loginWithCredentials: (
+    loginId: string,
+    password: string,
+    rememberMe?: boolean
+  ) => Promise<{ success: boolean; error?: string }>;
+  registerProfile: (
+    data: Omit<UserProfile, 'uid' | 'role' | 'status' | 'createdAt'>
+  ) => Promise<{ loginId: string; loginPassword: string }>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  setDemoProfile: (role: 'admin' | 'employee' | 'pending' | 'executive') => void;
-  isDemoMode: boolean;
+  setDemoProfile?: (role: string) => void;
+  isDemoMode?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo profiles for immediate testing
-const DEMO_ADMIN: UserProfile = {
-  uid: 'demo-admin-01',
-  name: '김도현',
-  employeeNumber: 'LD-2021-0001',
-  team: '경영관리팀',
-  assignedSite: '힐스테이트 센트럴 송도',
-  position: '관리자', // Updated from 총괄본부장 to 관리자
-  phoneNumber: '010-8291-5501',
-  email: 'admin.kim@leedo.co.kr',
-  role: 'admin',
-  status: 'active',
-  createdAt: '2021-03-01T09:00:00.000Z',
-  approvedAt: '2021-03-01T09:00:00.000Z',
-};
-
-const DEMO_EXECUTIVE: UserProfile = {
-  uid: 'demo-exec-01',
-  name: '이도원',
-  employeeNumber: 'LD-2018-0001',
-  team: '경영기획팀',
-  assignedSite: '송도 랜드마크시티',
-  position: '대표', // Executive position granting full admin system access
-  phoneNumber: '010-9999-1004',
-  email: 'ceo.lee@leedo.co.kr',
-  role: 'employee',
-  status: 'active',
-  createdAt: '2018-01-01T09:00:00.000Z',
-  approvedAt: '2018-01-01T09:00:00.000Z',
-  approvedBy: '이사회',
-};
-
-const DEMO_EMPLOYEE: UserProfile = {
-  uid: 'demo-emp-01',
-  name: '박서준',
-  employeeNumber: 'LD-2024-0015',
-  team: '영업1팀',
-  assignedSite: '힐스테이트 센트럴 송도',
-  position: '과장',
-  phoneNumber: '010-3342-9981',
-  email: 'seojun.park@leedo.co.kr',
-  role: 'employee',
-  status: 'active',
-  createdAt: '2024-01-10T10:00:00.000Z',
-  approvedAt: '2024-01-11T14:30:00.000Z',
-  approvedBy: '관리자',
-};
-
-const DEMO_PENDING: UserProfile = {
-  uid: 'demo-pending-01',
-  name: '이지은',
-  employeeNumber: 'LD-2026-0042',
-  team: '영업2팀',
-  assignedSite: '동탄 레이크 타워',
-  position: '대리',
-  phoneNumber: '010-5512-4478',
-  email: 'jieun.lee@leedo.co.kr',
-  role: 'employee',
-  status: 'pending',
-  createdAt: new Date().toISOString(),
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(() => {
-    // Check if session has a demo profile stored
-    const saved = localStorage.getItem('leedo_current_session');
-    if (saved) {
+    // Check auto-login session
+    const isAutoLogin = localStorage.getItem('leedo_auto_login') === 'true';
+    const saved =
+      localStorage.getItem('leedo_current_session') ||
+      sessionStorage.getItem('leedo_current_session');
+    if (saved && (isAutoLogin || !localStorage.getItem('leedo_logged_out'))) {
       try {
         return JSON.parse(saved);
       } catch {
@@ -111,120 +52,97 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return null;
   });
   const [loading, setLoading] = useState<boolean>(true);
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
-    return !!localStorage.getItem('leedo_is_demo_mode');
-  });
 
   useEffect(() => {
     testFirestoreConnection();
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (isDemoMode && profile) {
-        setLoading(false);
-        return;
-      }
+    // Check if auto-login session exists and refresh latest status from DB
+    const initAuth = async () => {
+      const isAutoLogin = localStorage.getItem('leedo_auto_login') === 'true';
+      const saved =
+        localStorage.getItem('leedo_current_session') ||
+        sessionStorage.getItem('leedo_current_session');
 
-      setFirebaseUser(user);
-      if (user) {
+      if (saved && isAutoLogin) {
         try {
-          let userProf = await getUserProfile(user.uid);
-          const isBootAdmin = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-
-          if (!userProf) {
-            if (isBootAdmin) {
-              const newAdmin: UserProfile = {
-                uid: user.uid,
-                name: user.displayName || '이도 관리자',
-                employeeNumber: 'LD-ADMIN-01',
-                team: '경영관리팀',
-                assignedSite: '힐스테이트 센트럴 송도',
-                position: '관리자', // Updated to 관리자
-                phoneNumber: '010-0000-0000',
-                email: user.email || ADMIN_EMAIL,
-                role: 'admin',
-                status: 'active',
-                createdAt: new Date().toISOString(),
-                approvedAt: new Date().toISOString(),
-              };
-              await createUserProfile(newAdmin);
-              userProf = newAdmin;
-              await seedInitialDataIfEmpty(user.uid, newAdmin.name);
+          const parsed = JSON.parse(saved) as UserProfile;
+          if (parsed && parsed.uid) {
+            const fresh = await getUserProfile(parsed.uid);
+            if (fresh && fresh.status === 'active') {
+              setProfile(fresh);
+              localStorage.setItem('leedo_current_session', JSON.stringify(fresh));
+            } else if (fresh) {
+              setProfile(fresh);
             }
           }
-          setProfile(userProf);
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
+        } catch (err) {
+          console.warn('Auto-login session parse error:', err);
         }
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
-  }, [isDemoMode]);
+    initAuth();
+  }, []);
 
-  const signInWithGoogle = async () => {
+  const loginWithCredentials = async (
+    loginIdInput: string,
+    passwordInput: string,
+    rememberMe = false
+  ): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
-    setIsDemoMode(false);
-    localStorage.removeItem('leedo_is_demo_mode');
     try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      let userProf = await getUserProfile(user.uid);
-      const isBootAdmin = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-
-      if (!userProf && isBootAdmin) {
-        const newAdmin: UserProfile = {
-          uid: user.uid,
-          name: user.displayName || '이도 관리자',
-          employeeNumber: 'LD-ADMIN-01',
-          team: '경영관리팀',
-          assignedSite: '힐스테이트 센트럴 송도',
-          position: '관리자',
-          phoneNumber: '010-0000-0000',
-          email: user.email || ADMIN_EMAIL,
-          role: 'admin',
-          status: 'active',
-          createdAt: new Date().toISOString(),
-          approvedAt: new Date().toISOString(),
-        };
-        await createUserProfile(newAdmin);
-        userProf = newAdmin;
-        await seedInitialDataIfEmpty(user.uid, newAdmin.name);
+      const res = await authenticateUser(loginIdInput, passwordInput);
+      if (!res.success || !res.user) {
+        return { success: false, error: res.error || '로그인에 실패했습니다.' };
       }
-      setProfile(userProf);
-      localStorage.setItem('leedo_current_session', JSON.stringify(userProf));
-    } catch (err: unknown) {
-      console.error('Google Sign-in failed:', err);
-      throw err;
+
+      setProfile(res.user);
+      localStorage.removeItem('leedo_logged_out');
+
+      if (rememberMe) {
+        localStorage.setItem('leedo_auto_login', 'true');
+        localStorage.setItem('leedo_current_session', JSON.stringify(res.user));
+      } else {
+        localStorage.removeItem('leedo_auto_login');
+        sessionStorage.setItem('leedo_current_session', JSON.stringify(res.user));
+        localStorage.removeItem('leedo_current_session');
+      }
+
+      return { success: true };
+    } catch (err) {
+      console.error('Login error:', err);
+      return { success: false, error: '로그인 처리 중 시스템 오류가 발생했습니다.' };
     } finally {
       setLoading(false);
     }
   };
 
   const registerProfile = async (
-    data: Omit<UserProfile, 'uid' | 'email' | 'role' | 'status' | 'createdAt'>
-  ) => {
-    const uid = firebaseUser?.uid || `user-${Date.now()}`;
-    const email = firebaseUser?.email || `${data.employeeNumber.toLowerCase()}@leedo.co.kr`;
+    data: Omit<UserProfile, 'uid' | 'role' | 'status' | 'createdAt'>
+  ): Promise<{ loginId: string; loginPassword: string }> => {
+    const randNum = Math.floor(1000 + Math.random() * 9000);
+    const loginId = data.loginId || `leedo_${randNum}`;
+    const passDigits = Math.floor(1000 + Math.random() * 9000);
+    const loginPassword = data.loginPassword || `ld${passDigits}`;
 
-    // Representative/Directors check
-    const isExecutive = ['대표', '이사', '본부장'].includes(data.position);
+    const uid = `user-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const isExec = ['대표', '이사', '본부장'].includes(data.position);
 
     const newProfile: UserProfile = {
       ...data,
       uid,
-      email,
-      role: isExecutive ? 'admin' : 'employee',
+      loginId,
+      loginPassword,
+      employeeNumber: data.employeeNumber || `LD-${new Date().getFullYear()}-${randNum}`,
+      email: data.email || `${loginId}@leedo.co.kr`,
+      role: isExec ? 'admin' : 'employee',
       status: 'pending', // Awaiting admin approval
       createdAt: new Date().toISOString(),
     };
 
     await createUserProfile(newProfile);
-    setProfile(newProfile);
-    localStorage.setItem('leedo_current_session', JSON.stringify(newProfile));
+    return { loginId, loginPassword };
   };
 
   const refreshProfile = async () => {
@@ -232,15 +150,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const p = await getUserProfile(profile.uid);
       if (p) {
         setProfile(p);
-        localStorage.setItem('leedo_current_session', JSON.stringify(p));
+        if (localStorage.getItem('leedo_auto_login') === 'true') {
+          localStorage.setItem('leedo_current_session', JSON.stringify(p));
+        } else {
+          sessionStorage.setItem('leedo_current_session', JSON.stringify(p));
+        }
       }
     }
   };
 
   const logout = async () => {
-    setIsDemoMode(false);
-    localStorage.removeItem('leedo_is_demo_mode');
+    localStorage.setItem('leedo_logged_out', 'true');
+    localStorage.removeItem('leedo_auto_login');
     localStorage.removeItem('leedo_current_session');
+    sessionStorage.removeItem('leedo_current_session');
     setProfile(null);
     setFirebaseUser(null);
     try {
@@ -250,29 +173,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const setDemoProfile = (role: 'admin' | 'employee' | 'pending' | 'executive') => {
-    setIsDemoMode(true);
-    localStorage.setItem('leedo_is_demo_mode', 'true');
-    setLoading(false);
-    let chosen: UserProfile;
-    if (role === 'admin') {
-      chosen = DEMO_ADMIN;
-    } else if (role === 'executive') {
-      chosen = DEMO_EXECUTIVE;
-    } else if (role === 'employee') {
-      chosen = DEMO_EMPLOYEE;
-    } else {
-      chosen = DEMO_PENDING;
-    }
-    setProfile(chosen);
-    localStorage.setItem('leedo_current_session', JSON.stringify(chosen));
-    // also ensure profile is saved in all users cache
-    createUserProfile(chosen);
-  };
-
-  // Executive permissions rule:
+  // Executive & Admin permissions:
   // "대표, 이사, 본부장 직급으로 등록되는사람은 관리자 전용 시스템도 같이 볼 수 있게 해줘"
-  const isExecutivePosition = ['대표', '이사', '본부장'].includes(profile?.position || '');
+  const isExecutivePosition = ['대표', '이사', '본부장', '관리자'].includes(profile?.position || '');
   const isAdmin = (profile?.role === 'admin' || isExecutivePosition) && profile?.status === 'active';
 
   const isApproved = profile?.status === 'active';
@@ -291,12 +194,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isPending: !!isPending,
         isRejected: !!isRejected,
         isDeactivated: !!isDeactivated,
-        signInWithGoogle,
+        loginWithCredentials,
         registerProfile,
         logout,
         refreshProfile,
-        setDemoProfile,
-        isDemoMode,
       }}
     >
       {children}
