@@ -80,6 +80,15 @@ export const MyPerformanceList: React.FC<MyPerformanceListProps> = ({ onOpenRegi
 
   useEffect(() => {
     loadData();
+    const handleUpdate = () => {
+      loadData();
+    };
+    window.addEventListener('leedo_performances_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('leedo_performances_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, [profile]);
 
   // Filtering

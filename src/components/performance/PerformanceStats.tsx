@@ -137,7 +137,7 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900">
-              {isAdminView ? '전사 실적 종합 분석' : '개인 실적 통계 분석'}
+              {isAdminView ? '회사 전체 실적 종합 분석' : '개인 실적 통계 분석'}
             </h2>
             <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
               {isAdminView ? '전체 임직원 합산' : `${profile?.name} 실적`}

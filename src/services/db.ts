@@ -86,6 +86,10 @@ export async function saveCompanyTeam(team: CompanyTeam): Promise<void> {
   } catch (err) {
     console.warn('Firestore saveCompanyTeam fallback saved locally:', err);
   }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_teams_updated'));
+  }
 }
 
 export async function deleteCompanyTeam(id: string): Promise<void> {
@@ -97,6 +101,10 @@ export async function deleteCompanyTeam(id: string): Promise<void> {
     await deleteDoc(doc(db, 'teams', id));
   } catch (err) {
     console.warn('Firestore deleteCompanyTeam fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_teams_updated'));
   }
 }
 
@@ -184,6 +192,38 @@ export const DEFAULT_USERS: UserProfile[] = [
     status: 'active',
     createdAt: '2021-05-10T09:00:00.000Z',
     approvedAt: '2021-05-10T09:00:00.000Z',
+  },
+  {
+    uid: 'demo-leader-01',
+    name: '정현우',
+    loginId: 'leader_jung',
+    loginPassword: '1234',
+    employeeNumber: 'LD-2022-0008',
+    team: '영업1팀',
+    assignedSite: '힐스테이트 센트럴 송도',
+    position: '팀장',
+    phoneNumber: '010-5821-3902',
+    email: 'hw.jung@leedo.co.kr',
+    role: 'employee',
+    status: 'active',
+    createdAt: '2022-03-01T09:00:00.000Z',
+    approvedAt: '2022-03-01T09:00:00.000Z',
+  },
+  {
+    uid: 'demo-leader-02',
+    name: '박진수',
+    loginId: 'leader_park',
+    loginPassword: '1234',
+    employeeNumber: 'LD-2022-0010',
+    team: '영업2팀',
+    assignedSite: '동탄 레이크 타워',
+    position: '팀장',
+    phoneNumber: '010-6712-4419',
+    email: 'js.park@leedo.co.kr',
+    role: 'employee',
+    status: 'active',
+    createdAt: '2022-04-15T09:00:00.000Z',
+    approvedAt: '2022-04-15T09:00:00.000Z',
   },
   {
     uid: 'demo-emp-01',
@@ -358,18 +398,43 @@ export async function updateUserProfile(
 }
 
 export async function deleteUserProfile(uid: string): Promise<void> {
+  // 1. Remove user from users cache
   const cachedUsers = getLocalCache<UserProfile[]>('users', DEFAULT_USERS);
   const updated = cachedUsers.filter((u) => u.uid !== uid);
   setLocalCache('users', updated);
 
+  // 2. Cascade delete all performance records registered by this employee from cache
+  const cachedPerfs = getLocalCache<PerformanceRecord[]>('performances', DEFAULT_PERFORMANCES);
+  const employeePerfs = cachedPerfs.filter((p) => p.employeeId === uid);
+  const remainingPerfs = cachedPerfs.filter((p) => p.employeeId !== uid);
+  setLocalCache('performances', remainingPerfs);
+
+  // 3. Remove personal schedules
+  const cachedSchedules = getLocalCache<PersonalSchedule[]>('personal_schedules', []);
+  const remainingSchedules = cachedSchedules.filter((s) => s.employeeId !== uid);
+  setLocalCache('personal_schedules', remainingSchedules);
+
   try {
+    // 4. Delete user doc in Firestore
     await deleteDoc(doc(db, 'users', uid));
+
+    // 5. Delete all performances by this employee from Firestore
+    for (const p of employeePerfs) {
+      await deleteDoc(doc(db, 'performances', p.id)).catch(() => {});
+    }
+
+    const qSnap = await getDocs(query(collection(db, 'performances'), where('employeeId', '==', uid)));
+    for (const d of qSnap.docs) {
+      await deleteDoc(d.ref).catch(() => {});
+    }
   } catch (err) {
     console.warn('Firestore deleteUserProfile fallback saved locally:', err);
   }
 
+  // 6. Broadcast updates across the applet
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_users_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_performances_updated'));
   }
 }
 
@@ -887,6 +952,119 @@ export const DEFAULT_PERFORMANCES: PerformanceRecord[] = [
     status: 'completed',
     createdAt: '2026-09-20T16:00:00.000Z',
   },
+  {
+    id: 'perf-014',
+    employeeId: 'emp-choi-01',
+    employeeName: '최유나',
+    employeeNumber: 'LD-2023-0028',
+    team: '영업1팀',
+    siteName: '힐스테이트 센트럴 송도',
+    type: 'visitor',
+    date: '2026-09-15',
+    yearMonth: '2026-09',
+    visitorCount: 18,
+    visitorType: 'new',
+    funnelSource: '현수막 / 전단 배포',
+    status: 'completed',
+    memo: '추석 전 집중 홍보 내방객 상담',
+    createdAt: '2026-09-15T14:30:00.000Z',
+  },
+  {
+    id: 'perf-015',
+    employeeId: 'emp-choi-01',
+    employeeName: '최유나',
+    employeeNumber: 'LD-2023-0028',
+    team: '영업1팀',
+    siteName: '힐스테이트 센트럴 송도',
+    type: 'contract',
+    date: '2026-09-18',
+    yearMonth: '2026-09',
+    contractIdentifier: '102동 1201호',
+    contractCount: 1,
+    status: 'completed',
+    memo: '송도 1공구 거주자 갈아타기 계약 완료',
+    createdAt: '2026-09-18T16:20:00.000Z',
+  },
+  {
+    id: 'perf-016',
+    employeeId: 'emp-yoon-01',
+    employeeName: '윤동현',
+    employeeNumber: 'LD-2025-0033',
+    team: '영업2팀',
+    siteName: '동탄 레이크 타워',
+    type: 'visitor',
+    date: '2026-09-11',
+    yearMonth: '2026-09',
+    visitorCount: 14,
+    visitorType: 'new',
+    funnelSource: '온라인 / SNS 광고',
+    status: 'completed',
+    createdAt: '2026-09-11T15:00:00.000Z',
+  },
+  {
+    id: 'perf-017',
+    employeeId: 'emp-yoon-01',
+    employeeName: '윤동현',
+    employeeNumber: 'LD-2025-0033',
+    team: '영업2팀',
+    siteName: '동탄 레이크 타워',
+    type: 'contract',
+    date: '2026-09-22',
+    yearMonth: '2026-09',
+    contractIdentifier: '201동 603호',
+    contractCount: 1,
+    status: 'completed',
+    createdAt: '2026-09-22T11:00:00.000Z',
+  },
+  {
+    id: 'perf-018',
+    employeeId: 'emp-han-01',
+    employeeName: '한수진',
+    employeeNumber: 'LD-2025-0040',
+    team: '영업2팀',
+    siteName: '동탄 레이크 타워',
+    type: 'contract',
+    date: '2026-09-28',
+    yearMonth: '2026-09',
+    contractIdentifier: '202동 1901호',
+    contractCount: 1,
+    status: 'completed',
+    memo: '신혼부부 특별공급 당첨 잔여 계약',
+    createdAt: '2026-09-28T17:10:00.000Z',
+  },
+  {
+    id: 'perf-019',
+    employeeId: 'demo-leader-01',
+    employeeName: '정현우',
+    employeeNumber: 'LD-2022-0008',
+    team: '영업1팀',
+    siteName: '힐스테이트 센트럴 송도',
+    type: 'contract',
+    date: '2026-10-10',
+    yearMonth: '2026-10',
+    contractIdentifier: '101동 2801호',
+    contractCount: 1,
+    status: 'completed',
+    memo: '팀장 직접 지원 VIP 동반 계약 체결',
+    createdAt: '2026-10-10T14:00:00.000Z',
+  },
+  {
+    id: 'perf-020',
+    employeeId: 'demo-leader-01',
+    employeeName: '정현우',
+    employeeNumber: 'LD-2022-0008',
+    team: '영업1팀',
+    siteName: '힐스테이트 센트럴 송도',
+    type: 'visitor',
+    date: '2026-10-14',
+    yearMonth: '2026-10',
+    visitorCount: 10,
+    visitorType: 'revisit',
+    funnelSource: '지인 소개 / 추천',
+    status: 'completed',
+    memo: '기존 수분양자 추천 우량 고객 모델하우스 안내',
+    createdAt: '2026-10-14T15:30:00.000Z',
+  },
 ];
 
 export const DEFAULT_AUDIT_LOGS: PerformanceAuditLog[] = [
@@ -911,8 +1089,6 @@ export const DEFAULT_AUDIT_LOGS: PerformanceAuditLog[] = [
 ];
 
 export async function getAllPerformances(yearMonth?: string): Promise<PerformanceRecord[]> {
-  const localPerfs = getLocalCache<PerformanceRecord[]>('performances', DEFAULT_PERFORMANCES);
-
   try {
     let q = query(collection(db, 'performances'), orderBy('date', 'desc'));
     if (yearMonth) {
@@ -930,19 +1106,16 @@ export async function getAllPerformances(yearMonth?: string): Promise<Performanc
         return r;
       });
 
-      const map = new Map<string, PerformanceRecord>();
-      localPerfs.forEach((p) => map.set(p.id, p));
-      dbRecords.forEach((p) => map.set(p.id, p));
-      const merged = Array.from(map.values()).sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      setLocalCache('performances', merged);
-      return yearMonth ? merged.filter((r) => r.yearMonth === yearMonth) : merged;
+      // The cloud database is the single source of truth:
+      // Authoritative remote records replace the local cache so deleted items disappear permanently
+      setLocalCache('performances', dbRecords);
+      return yearMonth ? dbRecords.filter((r) => r.yearMonth === yearMonth) : dbRecords;
     }
   } catch (err) {
     console.warn('Firestore getAllPerformances fallback to local:', err);
   }
 
+  const localPerfs = getLocalCache<PerformanceRecord[]>('performances', DEFAULT_PERFORMANCES);
   return yearMonth ? localPerfs.filter((r) => r.yearMonth === yearMonth) : localPerfs;
 }
 
@@ -997,6 +1170,10 @@ export async function registerPerformance(
   } catch (err) {
     console.warn('Firestore registerPerformance fallback stored locally:', err);
   }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_performances_updated'));
+  }
 }
 
 export async function updatePerformanceRecord(
@@ -1043,6 +1220,45 @@ export async function updatePerformanceRecord(
     await setDoc(doc(db, 'performance_audit_logs', logId), auditLog);
   } catch (err) {
     console.warn('Firestore updatePerformanceRecord fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_performances_updated'));
+  }
+}
+
+export async function deletePerformanceRecord(
+  performanceId: string,
+  user: { uid: string; name: string }
+): Promise<void> {
+  const current = getLocalCache<PerformanceRecord[]>('performances', DEFAULT_PERFORMANCES);
+  const target = current.find((p) => p.id === performanceId);
+  const updated = current.filter((p) => p.id !== performanceId);
+  setLocalCache('performances', updated);
+
+  const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const auditLog: PerformanceAuditLog = {
+    id: logId,
+    performanceId,
+    action: 'cancel',
+    performedBy: user.uid,
+    performedByName: user.name,
+    details: `[실적 영구 삭제] ${target?.employeeName || ''} (${target?.siteName || ''} ${target?.contractIdentifier || ''}) 실적 전표 삭제 완료`,
+    timestamp: new Date().toISOString(),
+  };
+
+  const logs = getLocalCache<PerformanceAuditLog[]>('performance_audit_logs', DEFAULT_AUDIT_LOGS);
+  setLocalCache('performance_audit_logs', [auditLog, ...logs]);
+
+  try {
+    await deleteDoc(doc(db, 'performances', performanceId));
+    await setDoc(doc(db, 'performance_audit_logs', logId), auditLog);
+  } catch (err) {
+    console.warn('Firestore deletePerformanceRecord fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_performances_updated'));
   }
 }
 
@@ -1153,6 +1369,10 @@ export async function saveResourceItem(item: ResourceItem): Promise<void> {
   } catch (err) {
     console.warn('Firestore saveResourceItem fallback saved locally:', err);
   }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_resources_updated'));
+  }
 }
 
 export async function deleteResourceItem(id: string): Promise<void> {
@@ -1164,6 +1384,10 @@ export async function deleteResourceItem(id: string): Promise<void> {
     await deleteDoc(doc(db, 'resources', id));
   } catch (err) {
     console.warn('Firestore deleteResourceItem fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_resources_updated'));
   }
 }
 
@@ -1358,6 +1582,10 @@ export async function saveNotice(notice: Notice): Promise<void> {
   } catch (err) {
     console.warn('Firestore saveNotice fallback saved locally:', err);
   }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_notices_updated'));
+  }
 }
 
 export async function deleteNotice(id: string): Promise<void> {
@@ -1369,6 +1597,10 @@ export async function deleteNotice(id: string): Promise<void> {
     await deleteDoc(doc(db, 'notices', id));
   } catch (err) {
     console.warn('Firestore deleteNotice fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_notices_updated'));
   }
 }
 
@@ -1432,6 +1664,10 @@ export async function saveEvent(event: InternalEvent): Promise<void> {
   } catch (err) {
     console.warn('Firestore saveEvent fallback saved locally:', err);
   }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_events_updated'));
+  }
 }
 
 export async function deleteEvent(id: string): Promise<void> {
@@ -1443,6 +1679,10 @@ export async function deleteEvent(id: string): Promise<void> {
     await deleteDoc(doc(db, 'events', id));
   } catch (err) {
     console.warn('Firestore deleteEvent fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_events_updated'));
   }
 }
 
@@ -1501,6 +1741,26 @@ export async function saveEmployeeOfTheMonth(award: EmployeeOfTheMonth): Promise
     await setDoc(doc(db, 'employee_of_the_month', award.id), award);
   } catch (err) {
     console.warn('Firestore saveEmployeeOfTheMonth fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_star_updated'));
+  }
+}
+
+export async function deleteEmployeeOfTheMonth(id: string): Promise<void> {
+  const current = getLocalCache('employee_of_the_month', [DEFAULT_STAR]);
+  const updated = current.filter((a) => a.id !== id);
+  setLocalCache('employee_of_the_month', updated);
+
+  try {
+    await deleteDoc(doc(db, 'employee_of_the_month', id));
+  } catch (err) {
+    console.warn('Firestore deleteEmployeeOfTheMonth fallback saved locally:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('leedo_star_updated'));
   }
 }
 

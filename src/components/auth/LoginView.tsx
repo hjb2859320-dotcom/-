@@ -70,7 +70,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onGoToRegister }) => {
               <span className="text-2xl font-black text-amber-400 tracking-wider">LEEDO</span>
             </div>
             <p className="mt-1 text-xs font-semibold text-slate-400">
-              부동산 분양대행사 임직원 전용 실적관리 시스템
+              이도 업무포털 - 임직원 전용 실적관리 시스템
             </p>
           </div>
 
@@ -159,6 +159,48 @@ export const LoginView: React.FC<LoginViewProps> = ({ onGoToRegister }) => {
               <span>{isSubmitting ? '로그인 확인 중...' : '사내 시스템 로그인'}</span>
             </button>
           </form>
+
+          {/* Quick Demo Test Accounts for easy role verification */}
+          <div className="mt-4 pt-3 border-t border-slate-700/60">
+            <div className="text-[11px] font-bold text-slate-400 mb-2 flex items-center justify-between">
+              <span>빠른 역할별 로그인 테스트:</span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginId('leader_jung');
+                  setPassword('1234');
+                }}
+                className="rounded-lg bg-cyan-950/60 border border-cyan-500/40 p-1.5 text-center hover:bg-cyan-900/60 transition-colors cursor-pointer"
+              >
+                <div className="text-[10px] font-bold text-cyan-300">팀장 (영업1팀)</div>
+                <div className="text-[9px] text-slate-400">leader_jung</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginId('admin_kim');
+                  setPassword('1234');
+                }}
+                className="rounded-lg bg-amber-950/60 border border-amber-500/40 p-1.5 text-center hover:bg-amber-900/60 transition-colors cursor-pointer"
+              >
+                <div className="text-[10px] font-bold text-amber-300">관리자</div>
+                <div className="text-[9px] text-slate-400">admin_kim</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginId('seojun');
+                  setPassword('1234');
+                }}
+                className="rounded-lg bg-slate-900/80 border border-slate-700 p-1.5 text-center hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                <div className="text-[10px] font-bold text-slate-300">일반 직원</div>
+                <div className="text-[9px] text-slate-400">seojun</div>
+              </button>
+            </div>
+          </div>
 
           {/* Register Application Button */}
           <div className="mt-5 pt-4 border-t border-slate-700/80">

@@ -35,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { profile, isAdmin } = useAuth();
+  const { profile, isAdmin, isTeamLeader, canAccessTeamLeaderSystem } = useAuth();
 
   const isExecutive = ['대표', '이사', '본부장'].includes(profile?.position || '');
 
@@ -51,6 +51,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'events', label: '프로모션 & 이벤트', icon: Calendar },
     { id: 'employee_of_the_month', label: '이달의 우수직원', icon: Award },
     { id: 'profile', label: '내 계정 정보', icon: User },
+  ];
+
+  // 팀장 전용 시스템 메뉴 (소속 팀장 및 관리자만 노출, 일반 직원은 비노출)
+  const teamLeaderMenuItems = [
+    { id: 'team_leader_performances', label: '소속 팀원 실적 현황', icon: Users, badge: '팀원실적' },
   ];
 
   const adminMenuItems = [
@@ -104,6 +109,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`font-bold px-1.5 py-0.2 rounded text-[10px] ${
                 isExecutive
                   ? 'bg-amber-400 text-slate-950 font-black'
+                  : isTeamLeader
+                  ? 'bg-cyan-400 text-slate-950 font-black'
                   : 'text-amber-400'
               }`}
             >
@@ -171,6 +178,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
               })}
             </nav>
           </div>
+
+          {/* Team Leader Sector (팀장 전용 시스템 - 소속 팀장 및 관리자/임원만 노출, 일반 직원은 비노출) */}
+          {canAccessTeamLeaderSystem && (
+            <div className="pt-2 border-t border-slate-800/80">
+              <div className="flex items-center justify-between px-3 pb-2">
+                <span className="text-[10px] font-black tracking-wider text-cyan-400 uppercase flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 text-cyan-400" />
+                  팀장 전용 시스템
+                </span>
+                <span className="rounded bg-cyan-400/20 px-1.5 py-0.2 text-[9px] font-bold text-cyan-300">
+                  {isTeamLeader ? '소속팀장' : 'LEADER'}
+                </span>
+              </div>
+              <nav className="space-y-1">
+                {teamLeaderMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeMenu === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelect(item.id)}
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-950/40 font-bold'
+                          : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Icon
+                          className={`h-4 w-4 shrink-0 ${
+                            isActive ? 'text-white' : 'text-cyan-400'
+                          }`}
+                        />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && !isActive && (
+                        <span className="rounded bg-cyan-500/20 px-1.5 py-0.2 text-[9px] font-bold text-cyan-300">
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          )}
 
           {/* Admin Menu (Shown to admins AND executive positions: 대표, 이사, 본부장) */}
           {isAdmin && (

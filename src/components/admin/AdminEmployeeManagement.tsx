@@ -1196,7 +1196,7 @@ export const AdminEmployeeManagement: React.FC = () => {
               <div className="rounded-xl border border-rose-200 bg-rose-50/70 p-3 text-xs text-rose-800 leading-relaxed">
                 해당 직원을 시스템에서 <strong>영구히 삭제</strong>하시겠습니까?
                 <br />
-                삭제 후에는 해당 계정으로 로그인할 수 없으며 이 작업은 되돌릴 수 없습니다.
+                삭제 후에는 해당 계정으로 로그인할 수 없으며, <strong>해당 직원이 등록했던 모든 실적 데이터도 함께 삭제</strong>되어 회사 전체 실적 통계에 즉시 최신화 반영됩니다.
               </div>
 
               <div className="flex gap-2 pt-2">

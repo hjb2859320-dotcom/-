@@ -57,6 +57,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   useEffect(() => {
     loadData();
+    const handleUpdate = () => {
+      loadData();
+    };
+    window.addEventListener('leedo_performances_updated', handleUpdate);
+    window.addEventListener('leedo_users_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('leedo_performances_updated', handleUpdate);
+      window.removeEventListener('leedo_users_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, []);
 
   const pendingEmployees = users.filter((u) => u.status === 'pending');
@@ -101,7 +112,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </span>
           </div>
           <h1 className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">
-            (주)이도 전사 통합 분양 실적 및 직원 관리 센터
+            (주)이도 회사 전체 통합 분양 실적 및 직원 관리 센터
           </h1>
           <p className="mt-1 text-xs text-slate-300">
             직원 등록 승인, 현장별 계약 통계, 부정/중복 등록 모니터링 및 엑셀 정산 데이터를 관리합니다.
@@ -124,7 +135,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             className="flex items-center gap-1.5 rounded-xl bg-slate-800 border border-slate-600 px-3.5 py-2.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer"
           >
             <Download className="h-4 w-4 text-slate-300" />
-            <span>전사 실적 엑셀 다운로드</span>
+            <span>회사 전체 실적 엑셀 다운로드</span>
           </button>
         </div>
       </div>
@@ -173,7 +184,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* Current Month Valid Contracts */}
         <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-4 shadow-xs">
           <div className="flex items-center justify-between text-blue-800">
-            <span className="text-xs font-bold">당월 전사 유효 계약</span>
+            <span className="text-xs font-bold">당월 회사 전체 유효 계약</span>
             <div className="rounded-lg bg-blue-600 p-1.5 text-white">
               <FileCheck2 className="h-4 w-4" />
             </div>
@@ -190,7 +201,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* Current Month Visitors */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold">당월 전사 내방객</span>
+            <span className="text-xs font-semibold">당월 회사 전체 내방객</span>
             <div className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
               <Users2 className="h-4 w-4" />
             </div>

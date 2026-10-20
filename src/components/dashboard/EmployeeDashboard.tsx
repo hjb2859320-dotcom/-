@@ -81,6 +81,19 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
   useEffect(() => {
     loadData();
+    const handleUpdate = () => {
+      loadData();
+    };
+    window.addEventListener('leedo_performances_updated', handleUpdate);
+    window.addEventListener('leedo_notices_updated', handleUpdate);
+    window.addEventListener('leedo_events_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('leedo_performances_updated', handleUpdate);
+      window.removeEventListener('leedo_notices_updated', handleUpdate);
+      window.removeEventListener('leedo_events_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, [profile]);
 
   // Current month metrics

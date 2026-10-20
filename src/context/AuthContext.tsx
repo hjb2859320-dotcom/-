@@ -14,6 +14,8 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   isAdmin: boolean; // Includes role === 'admin' OR position is 대표, 이사, 본부장, 관리자
+  isTeamLeader: boolean; // 직급이 '팀장'인 사용자
+  canAccessTeamLeaderSystem: boolean; // 소속 팀장 및 관리자/임원
   isApproved: boolean;
   isPending: boolean;
   isRejected: boolean;
@@ -178,6 +180,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isExecutivePosition = ['대표', '이사', '본부장', '관리자'].includes(profile?.position || '');
   const isAdmin = (profile?.role === 'admin' || isExecutivePosition) && profile?.status === 'active';
 
+  // Team Leader permissions:
+  // "팀장 직급인 아이디에는 자기가 소속된 팀원들의 실적을 한눈에 볼 수 있는 메뉴를 추가해줘 그 메뉴는 소속된 팀장,관리자만 보이게 만들어주고 직원들은 볼 수가 없게 해줘"
+  const isTeamLeader = (profile?.position === '팀장' || (profile?.position || '').includes('팀장')) && profile?.status === 'active';
+  const canAccessTeamLeaderSystem = (isTeamLeader || !!isAdmin) && profile?.status === 'active';
+
   const isApproved = profile?.status === 'active';
   const isPending = profile?.status === 'pending';
   const isRejected = profile?.status === 'rejected';
@@ -190,6 +197,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         profile,
         loading,
         isAdmin: !!isAdmin,
+        isTeamLeader: !!isTeamLeader,
+        canAccessTeamLeaderSystem: !!canAccessTeamLeaderSystem,
         isApproved: !!isApproved,
         isPending: !!isPending,
         isRejected: !!isRejected,

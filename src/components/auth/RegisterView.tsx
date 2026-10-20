@@ -312,7 +312,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
             <div className="rounded-xl border border-amber-500/30 bg-amber-950/30 p-3 text-xs text-amber-200 flex items-start gap-2">
               <Crown className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
               <span>
-                <strong>{formData.position}</strong> 직급은 승인 완료 시 일반 실적 메뉴와 함께 관리자 전용 시스템(직원 승인, 전사 통계)도 열람할 수 있습니다.
+                <strong>{formData.position}</strong> 직급은 승인 완료 시 일반 실적 메뉴와 함께 관리자 전용 시스템(직원 승인, 회사 전체 통계)도 열람할 수 있습니다.
               </span>
             </div>
           )}

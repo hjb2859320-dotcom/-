@@ -55,8 +55,8 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{currentDateStr}</span>
           </div>
           <span className="hidden text-xs text-slate-300 sm:inline">|</span>
-          <span className="hidden text-xs font-semibold text-slate-600 sm:inline">
-            부동산 분양대행 전문기업 (주)이도
+          <span className="hidden text-xs font-bold text-slate-800 sm:inline">
+            이도 업무포털
           </span>
         </div>
       </div>

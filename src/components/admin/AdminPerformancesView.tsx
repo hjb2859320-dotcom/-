@@ -28,6 +28,9 @@ import {
   BarChart3,
   ChevronDown,
   ChevronUp,
+  RefreshCw,
+  Trash2,
+  Pencil,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -48,6 +51,7 @@ import {
   getCompanyTeams,
   getProjectSites,
   updatePerformanceRecord,
+  deletePerformanceRecord,
   exportPerformancesToCsv,
   getPerformanceAuditLogs,
 } from '../../services/db';
@@ -102,6 +106,28 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
 
+  // Delete Record Modal
+  const [recordToDelete, setRecordToDelete] = useState<PerformanceRecord | null>(null);
+  const [deletingRecord, setDeletingRecord] = useState(false);
+
+  // Edit Record Modal
+  const [recordToEdit, setRecordToEdit] = useState<PerformanceRecord | null>(null);
+  const [editingRecord, setEditingRecord] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    date: '',
+    siteName: '',
+    team: '',
+    type: 'contract' as PerformanceType,
+    contractIdentifier: '',
+    contractCount: 1,
+    visitorCount: 1,
+    visitorType: 'new' as 'new' | 'revisit',
+    funnelSource: '',
+    status: 'completed' as 'completed' | 'cancelled',
+    memo: '',
+  });
+
   // Detail Modal
   const [selectedRecordForDetail, setSelectedRecordForDetail] = useState<PerformanceRecord | null>(null);
   const [recordAuditLogs, setRecordAuditLogs] = useState<PerformanceAuditLog[]>([]);
@@ -139,7 +165,95 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
 
   useEffect(() => {
     loadAllData();
+    const handleUpdate = () => {
+      loadAllData();
+    };
+    window.addEventListener('leedo_performances_updated', handleUpdate);
+    window.addEventListener('leedo_users_updated', handleUpdate);
+    window.addEventListener('leedo_projects_updated', handleUpdate);
+    window.addEventListener('leedo_teams_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('leedo_performances_updated', handleUpdate);
+      window.removeEventListener('leedo_users_updated', handleUpdate);
+      window.removeEventListener('leedo_projects_updated', handleUpdate);
+      window.removeEventListener('leedo_teams_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, []);
+
+  const handleOpenEdit = (rec: PerformanceRecord) => {
+    setRecordToEdit(rec);
+    setEditError(null);
+    setEditFormData({
+      date: rec.date,
+      siteName: rec.siteName,
+      team: rec.team || rec.department || '',
+      type: rec.type,
+      contractIdentifier: rec.contractIdentifier || '',
+      contractCount: rec.contractCount || 1,
+      visitorCount: rec.visitorCount || 1,
+      visitorType: rec.visitorType || 'new',
+      funnelSource: rec.funnelSource || '',
+      status: rec.status,
+      memo: rec.memo || '',
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!recordToEdit || !profile) return;
+    if (!editFormData.date || !editFormData.siteName) {
+      setEditError('발생일자와 분양 현장명은 필수 항목입니다.');
+      return;
+    }
+    setEditingRecord(true);
+    setEditError(null);
+    try {
+      await updatePerformanceRecord(
+        recordToEdit.id,
+        {
+          date: editFormData.date,
+          yearMonth: editFormData.date.substring(0, 7),
+          siteName: editFormData.siteName,
+          team: editFormData.team,
+          type: editFormData.type,
+          contractIdentifier: editFormData.type === 'contract' ? editFormData.contractIdentifier : undefined,
+          contractCount: editFormData.type === 'contract' ? Number(editFormData.contractCount) || 1 : undefined,
+          visitorCount: editFormData.type === 'visitor' ? Number(editFormData.visitorCount) || 1 : undefined,
+          visitorType: editFormData.type === 'visitor' ? editFormData.visitorType : undefined,
+          funnelSource: editFormData.type === 'visitor' ? editFormData.funnelSource : undefined,
+          status: editFormData.status,
+          memo: editFormData.memo,
+        },
+        { uid: profile.uid, name: profile.name },
+        '관리자 전표 직접 수정'
+      );
+      setRecordToEdit(null);
+      await loadAllData();
+      showToast('실적 전표가 성공적으로 수정되었습니다.');
+    } catch (err) {
+      console.error(err);
+      setEditError('실적 수정 중 오류가 발생했습니다.');
+    } finally {
+      setEditingRecord(false);
+    }
+  };
+
+  const handleDeleteRecordConfirm = async () => {
+    if (!recordToDelete || !profile) return;
+    setDeletingRecord(true);
+    try {
+      await deletePerformanceRecord(recordToDelete.id, { uid: profile.uid, name: profile.name });
+      setRecordToDelete(null);
+      await loadAllData();
+      showToast('실적 전표가 영구 삭제되었습니다.');
+    } catch (err) {
+      console.error(err);
+      showToast('실적 삭제 중 오류가 발생했습니다.');
+    } finally {
+      setDeletingRecord(false);
+    }
+  };
 
   // Filtered performances based on Period, Team, Employee, Type, Status, Search
   const filteredPerformances = performances.filter((p) => {
@@ -447,7 +561,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
         : `${selectedYear}년_${selectedMonth}월`;
     exportPerformancesToCsv(
       filteredPerformances,
-      `LEEDO_전사_실적총람_${periodLabel}_${new Date().toISOString().split('T')[0]}.csv`
+      `LEEDO_회사전체_실적총람_${periodLabel}_${new Date().toISOString().split('T')[0]}.csv`
     );
   };
 
@@ -474,7 +588,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
             </span>
           </div>
           <h1 className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">
-            전사 실적 총괄 및 직원별 실적 분석
+            회사 전체 실적 총괄 및 직원별 실적 분석
           </h1>
           <p className="mt-1 text-xs text-slate-300">
             소속 팀별, 직원별 실적 현황을 한눈에 파악하고 상세 원장 전표 및 변경 감사로그(Audit Log)를 조회합니다.
@@ -482,6 +596,15 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={loadAllData}
+            disabled={loading}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-600 bg-slate-800/80 px-3.5 py-2.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer"
+            title="최신 실적 및 직원 데이터 동기화 새로고침"
+          >
+            <RefreshCw className={`h-4 w-4 text-cyan-400 ${loading ? 'animate-spin' : ''}`} />
+            <span>새로고침</span>
+          </button>
           <button
             onClick={handleExportCsv}
             className="flex items-center gap-1.5 rounded-xl border border-slate-600 bg-slate-800/80 px-3.5 py-2.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer"
@@ -611,7 +734,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
           }`}
         >
           <History className="h-4 w-4 text-purple-400" />
-          <span>전사 감사로그 (Audit Log)</span>
+          <span>시스템 감사로그 (Audit Log)</span>
           <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] text-slate-700 font-bold">
             {auditLogs.length}건
           </span>
@@ -748,6 +871,223 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
             />
           </div>
         </div>
+      </div>
+
+      {/* -------------------------------------------------------------
+       * VISUAL ANALYTICS: 팀별/현장별 실적 비교 막대 차트 & 월별 실적 추이 라인 차트 (Recharts)
+       * ------------------------------------------------------------- */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+              <BarChart3 className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span>실적 데이터 시각화 분석</span>
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                  Recharts 실시간 분석
+                </span>
+              </h2>
+              <p className="text-[11px] text-slate-400">
+                {selectedYear === 'all' ? '전체 기간 누적' : `${selectedYear}년도`} 팀별/현장별 실적 비교 및 월별 실적 변동 추세
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowCharts(!showCharts)}
+              className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              {showCharts ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              <span>{showCharts ? '차트 접기' : '차트 펼치기'}</span>
+            </button>
+          </div>
+        </div>
+
+        {showCharts && (
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 pt-1">
+            {/* 1. Bar Chart: 팀별 / 현장별 실적 비교 */}
+            <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Layers className="h-3.5 w-3.5 text-blue-600" />
+                    <span>{barChartMode === 'team' ? '팀별 실적 비교 막대 차트' : '현장별 실적 비교 막대 차트'}</span>
+                  </h3>
+                  <span className="text-[10px] text-slate-400">유효계약, 내방객, 취소건수 집계</span>
+                </div>
+
+                {/* Mode Selector Toggle */}
+                <div className="flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setBarChartMode('team')}
+                    className={`rounded-md px-2.5 py-1 text-[11px] transition-all cursor-pointer ${
+                      barChartMode === 'team'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    팀별 비교
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBarChartMode('site')}
+                    className={`rounded-md px-2.5 py-1 text-[11px] transition-all cursor-pointer ${
+                      barChartMode === 'site'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    현장별 비교
+                  </button>
+                </div>
+              </div>
+
+              {activeBarData.length === 0 ? (
+                <div className="flex h-64 items-center justify-center text-xs text-slate-400">
+                  표시할 비교 데이터가 없습니다.
+                </div>
+              ) : (
+                <div className="h-72 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={activeBarData}
+                      margin={{ top: 20, right: 15, left: -10, bottom: 25 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        interval={0}
+                        angle={-15}
+                        textAnchor="end"
+                        height={45}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        allowDecimals={false}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#0f172a',
+                          borderRadius: '12px',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: '11px',
+                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+                        }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+                      <Bar
+                        dataKey="contracts"
+                        name="유효 계약 (건)"
+                        fill="#2563eb"
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={32}
+                      />
+                      <Bar
+                        dataKey="visitors"
+                        name="내방 상담 (명)"
+                        fill="#4f46e5"
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={32}
+                      />
+                      <Bar
+                        dataKey="cancelled"
+                        name="취소 계약 (건)"
+                        fill="#f43f5e"
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={32}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+
+            {/* 2. Line Chart: 월별 실적 추이 라인 차트 */}
+            <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                    <span>월별 실적 추이 라인 차트 ({selectedYear === 'all' ? currentYear : selectedYear}년)</span>
+                  </h3>
+                  <span className="text-[10px] text-slate-400">1월 ~ 12월 계약 및 내방객 월간 변동 추세</span>
+                </div>
+
+                {peakMonth && (
+                  <div className="flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold text-amber-800">
+                    <Award className="h-3 w-3 text-amber-500" />
+                    <span>최고실적: {peakMonth.month} ({peakMonth.count}건)</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="h-72 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={monthlyTrendData}
+                    margin={{ top: 20, right: 15, left: -10, bottom: 15 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      height={30}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      allowDecimals={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#0f172a',
+                        borderRadius: '12px',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '11px',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+                      }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+                    <Line
+                      type="monotone"
+                      dataKey="contracts"
+                      name="유효 계약 (건)"
+                      stroke="#2563eb"
+                      strokeWidth={3}
+                      dot={{ r: 4, fill: '#2563eb' }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="visitors"
+                      name="내방 상담 (명)"
+                      stroke="#10b981"
+                      strokeWidth={2.5}
+                      dot={{ r: 3, fill: '#10b981' }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="cancelled"
+                      name="취소 건수 (건)"
+                      stroke="#f43f5e"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      dot={{ r: 2, fill: '#f43f5e' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* -------------------------------------------------------------
@@ -1050,6 +1390,14 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                             <Eye className="h-4 w-4" />
                           </button>
 
+                          <button
+                            onClick={() => handleOpenEdit(record)}
+                            className="rounded-lg p-1.5 text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                            title="실적 전표 내용 수정"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+
                           {record.type === 'contract' && record.status === 'completed' && (
                             <button
                               onClick={() => {
@@ -1063,6 +1411,14 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                               취소
                             </button>
                           )}
+
+                          <button
+                            onClick={() => setRecordToDelete(record)}
+                            className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
+                            title="실적 전표 영구 삭제"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1075,7 +1431,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
       )}
 
       {/* -------------------------------------------------------------
-       * TAB 3: 전사 실적 감사로그 (Audit Logs)
+       * TAB 3: 시스템 감사로그 (Audit Logs)
        * ------------------------------------------------------------- */}
       {activeTab === 'audit' && (
         <div className="space-y-4">
@@ -1397,6 +1753,346 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                   className="rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* -------------------------------------------------------------
+       * MODAL: Edit Performance Record Modal
+       * ------------------------------------------------------------- */}
+      {recordToEdit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
+              <div className="flex items-center gap-2">
+                <Pencil className="h-4 w-4 text-amber-400" />
+                <h3 className="font-bold text-sm">실적 전표 수정</h3>
+              </div>
+              <button
+                onClick={() => setRecordToEdit(null)}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
+              {/* Employee Information (Read-only) */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-slate-400 block font-semibold">담당 직원 정보</span>
+                  <div className="font-bold text-slate-900 text-sm">
+                    {recordToEdit.employeeName}{' '}
+                    <span className="text-xs font-normal text-slate-500 font-mono">
+                      ({recordToEdit.employeeNumber})
+                    </span>
+                  </div>
+                </div>
+                <span className="rounded-md bg-slate-200/80 px-2 py-1 text-[11px] font-bold text-slate-700">
+                  {recordToEdit.team}
+                </span>
+              </div>
+
+              {editError && (
+                <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-rose-700">
+                  {editError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* Date */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">발생 일자 *</label>
+                  <input
+                    type="date"
+                    value={editFormData.date}
+                    onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Site */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">분양 현장 *</label>
+                  <select
+                    value={editFormData.siteName}
+                    onChange={(e) => setEditFormData({ ...editFormData, siteName: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold focus:border-blue-500 focus:outline-none"
+                  >
+                    {sites.map((s) => (
+                      <option key={s.id} value={s.name}>
+                        {s.name}
+                      </option>
+                    ))}
+                    {!sites.some((s) => s.name === editFormData.siteName) && (
+                      <option value={editFormData.siteName}>{editFormData.siteName}</option>
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* Team */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">소속 팀</label>
+                  <select
+                    value={editFormData.team}
+                    onChange={(e) => setEditFormData({ ...editFormData, team: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold focus:border-blue-500 focus:outline-none"
+                  >
+                    {teams.map((t) => (
+                      <option key={t.id} value={t.name}>
+                        {t.name}
+                      </option>
+                    ))}
+                    {!teams.some((t) => t.name === editFormData.team) && (
+                      <option value={editFormData.team}>{editFormData.team}</option>
+                    )}
+                  </select>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">전표 상태</label>
+                  <select
+                    value={editFormData.status}
+                    onChange={(e) =>
+                      setEditFormData({
+                        ...editFormData,
+                        status: e.target.value as 'completed' | 'cancelled',
+                      })
+                    }
+                    className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="completed">정상 완료</option>
+                    <option value="cancelled">취소 처리</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Type Switcher */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">실적 유형</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditFormData({ ...editFormData, type: 'contract' })}
+                    className={`rounded-xl py-2 font-bold transition-all cursor-pointer ${
+                      editFormData.type === 'contract'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    계약 실적
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditFormData({ ...editFormData, type: 'visitor' })}
+                    className={`rounded-xl py-2 font-bold transition-all cursor-pointer ${
+                      editFormData.type === 'visitor'
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    내방객 실적
+                  </button>
+                </div>
+              </div>
+
+              {/* Contract Specific Fields */}
+              {editFormData.type === 'contract' && (
+                <div className="grid grid-cols-2 gap-3 rounded-xl border border-blue-100 bg-blue-50/40 p-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">동·호수 식별정보</label>
+                    <input
+                      type="text"
+                      placeholder="예: 104동 1502호"
+                      value={editFormData.contractIdentifier}
+                      onChange={(e) =>
+                        setEditFormData({ ...editFormData, contractIdentifier: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">계약 건수</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={editFormData.contractCount}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          contractCount: parseInt(e.target.value, 10) || 1,
+                        })
+                      }
+                      className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Visitor Specific Fields */}
+              {editFormData.type === 'visitor' && (
+                <div className="space-y-3 rounded-xl border border-indigo-100 bg-indigo-50/40 p-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">내방객 수 (명)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={editFormData.visitorCount}
+                        onChange={(e) =>
+                          setEditFormData({
+                            ...editFormData,
+                            visitorCount: parseInt(e.target.value, 10) || 1,
+                          })
+                        }
+                        className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">내방 구분</label>
+                      <select
+                        value={editFormData.visitorType}
+                        onChange={(e) =>
+                          setEditFormData({
+                            ...editFormData,
+                            visitorType: e.target.value as 'new' | 'revisit',
+                          })
+                        }
+                        className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs focus:border-blue-500 focus:outline-none"
+                      >
+                        <option value="new">신규 내방</option>
+                        <option value="revisit">재방문 상담</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">유입 경로</label>
+                    <input
+                      type="text"
+                      placeholder="예: 온라인/SNS, 전화문의, 현수막, 워크인"
+                      value={editFormData.funnelSource}
+                      onChange={(e) =>
+                        setEditFormData({ ...editFormData, funnelSource: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Memo */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">상세 메모</label>
+                <textarea
+                  rows={2}
+                  value={editFormData.memo}
+                  onChange={(e) => setEditFormData({ ...editFormData, memo: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 p-2.5 text-xs focus:border-blue-500 focus:outline-none"
+                  placeholder="특이사항 및 고객 상담 비고를 입력하세요"
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setRecordToEdit(null)}
+                disabled={editingRecord}
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEdit}
+                disabled={editingRecord}
+                className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {editingRecord ? '저장 중...' : '수정 내용 저장'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* -------------------------------------------------------------
+       * MODAL: Delete Performance Record Modal
+       * ------------------------------------------------------------- */}
+      {recordToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+            <div className="flex items-center justify-between border-b border-rose-100 bg-rose-50 px-6 py-4">
+              <div className="flex items-center gap-2 text-rose-700">
+                <Trash2 className="h-5 w-5" />
+                <h3 className="font-bold text-sm">실적 전표 영구 삭제</h3>
+              </div>
+              <button
+                onClick={() => setRecordToDelete(null)}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-100 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs">
+              <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 text-rose-800 space-y-1">
+                <div className="font-bold flex items-center gap-1.5 text-rose-900">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+                  <span>실적 전표를 영구 삭제하시겠습니까?</span>
+                </div>
+                <p className="text-[11px] leading-relaxed">
+                  삭제된 전표는 회사 전체 실적 통계 및 대시보드에서 즉시 제외되며, 시스템 감사로그에 삭제 기록이 보존됩니다.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">담당 직원:</span>
+                  <span className="font-bold text-slate-900">
+                    {recordToDelete.employeeName} ({recordToDelete.team || '-'})
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">발생 일자:</span>
+                  <span className="font-bold text-slate-900">{recordToDelete.date}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">분양 현장:</span>
+                  <span className="font-bold text-slate-900">{recordToDelete.siteName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">실적 세부:</span>
+                  <span className="font-bold text-blue-700">
+                    {recordToDelete.type === 'contract'
+                      ? `계약: ${recordToDelete.contractIdentifier || '동호수 미기재'} (${recordToDelete.contractCount || 1}건)`
+                      : `내방객: ${recordToDelete.visitorCount || 1}명`}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setRecordToDelete(null)}
+                  disabled={deletingRecord}
+                  className="flex-1 rounded-xl border border-slate-300 py-2.5 font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteRecordConfirm}
+                  disabled={deletingRecord}
+                  className="flex-1 rounded-xl bg-rose-600 py-2.5 font-bold text-white shadow-md hover:bg-rose-500 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>{deletingRecord ? '삭제 중...' : '영구 삭제 실행'}</span>
                 </button>
               </div>
             </div>

@@ -20,6 +20,7 @@ import { AdminEmployeeManagement } from './components/admin/AdminEmployeeManagem
 import { AdminTeamManagement } from './components/admin/AdminTeamManagement';
 import { AdminProjectManagement } from './components/admin/AdminProjectManagement';
 import { AdminPerformancesView } from './components/admin/AdminPerformancesView';
+import { TeamLeaderPerformanceView } from './components/team/TeamLeaderPerformanceView';
 import { MyProfileView } from './components/profile/MyProfileView';
 import { LeedoLogo } from './components/common/LeedoLogo';
 import type { Notice, InternalEvent } from './types';
@@ -159,6 +160,13 @@ function MainApp() {
 
           {activeMenu === 'profile' && (
             <MyProfileView />
+          )}
+
+          {/* Team Leader System (팀장 전용 시스템) */}
+          {activeMenu === 'team_leader_performances' && (
+            <TeamLeaderPerformanceView
+              onOpenRegister={() => setIsRegisterModalOpen(true)}
+            />
           )}
 
           {/* Admin Exclusive Views (Accessible by Admins and Executives: 대표, 이사, 본부장) */}
