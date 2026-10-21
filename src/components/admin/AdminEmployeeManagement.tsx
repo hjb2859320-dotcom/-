@@ -540,9 +540,10 @@ export const AdminEmployeeManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Employees Table */}
+      {/* Employees Table (Desktop) & Cards (Mobile) */}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="border-b border-slate-200 bg-slate-50 font-bold text-slate-600">
               <tr>
@@ -741,6 +742,191 @@ export const AdminEmployeeManagement: React.FC = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Responsive Cards */}
+        <div className="block md:hidden divide-y divide-slate-100">
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((u) => {
+              const isExec = ['대표', '이사', '본부장'].includes(u.position);
+              return (
+                <div key={u.uid} className="p-4 space-y-3">
+                  {/* Card Header: Avatar + Name + Badges */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold text-xs ${
+                          isExec
+                            ? 'bg-amber-400 text-slate-950 font-black shadow-xs'
+                            : 'bg-slate-900 text-white'
+                        }`}
+                      >
+                        {u.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-extrabold text-sm text-slate-900">{u.name}</span>
+                          <span className="text-xs font-semibold text-slate-600">{u.position}</span>
+                          {isExec && (
+                            <span className="rounded bg-amber-400 text-slate-950 px-1.5 py-0.2 text-[9px] font-black">
+                              임원
+                            </span>
+                          )}
+                          {u.role === 'admin' && !isExec && (
+                            <span className="rounded bg-indigo-100 px-1.5 py-0.2 text-[9px] font-bold text-indigo-700">
+                              관리자
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">
+                          {u.team || u.department || '팀 미배정'} · {u.assignedSite}
+                        </div>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold shrink-0 ${
+                        u.status === 'active'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : u.status === 'pending'
+                          ? 'bg-amber-100 text-amber-900 animate-pulse'
+                          : u.status === 'rejected'
+                          ? 'bg-rose-100 text-rose-800'
+                          : 'bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {u.status === 'active'
+                        ? '정상 승인'
+                        : u.status === 'pending'
+                        ? '승인 대기'
+                        : u.status === 'rejected'
+                        ? '승인 거절'
+                        : '비활성화(차단)'}
+                    </span>
+                  </div>
+
+                  {/* Account Info Box */}
+                  <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-100 text-xs space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">접속 아이디:</span>
+                      <div className="flex items-center gap-1 font-mono font-bold text-blue-700">
+                        <span>{u.loginId || '미생성'}</span>
+                        {u.loginId && (
+                          <button
+                            onClick={() => copyToClipboard(u.loginId!, '아이디가 복사되었습니다.')}
+                            className="text-slate-400 hover:text-slate-700 p-0.5"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {u.phoneNumber && (
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-slate-500">연락처:</span>
+                        <span className="text-slate-700">{u.phoneNumber}</span>
+                      </div>
+                    )}
+                    {u.email && (
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-slate-500">이메일:</span>
+                        <span className="text-slate-500 truncate max-w-[200px]">{u.email}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions for Mobile */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    {u.status === 'pending' ? (
+                      <>
+                        <button
+                          onClick={() => handleApprove(u)}
+                          className="flex-1 rounded-xl bg-emerald-600 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-500 text-center cursor-pointer min-h-[38px]"
+                        >
+                          승인 및 배포
+                        </button>
+                        <button
+                          onClick={() => setRejectingUser(u)}
+                          className="rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 cursor-pointer min-h-[38px]"
+                        >
+                          반려
+                        </button>
+                        <button
+                          onClick={() => setUserToDelete(u)}
+                          className="rounded-xl border border-rose-200 bg-white p-2 text-rose-500 hover:bg-rose-50 cursor-pointer min-h-[38px]"
+                          title="삭제"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() =>
+                            setDistributionModal({
+                              isOpen: true,
+                              user: u,
+                              loginId: u.loginId || '미생성',
+                              loginPassword: u.loginPassword || '1234',
+                            })
+                          }
+                          className="flex-1 rounded-xl border border-amber-300 bg-amber-50 py-2 text-xs font-bold text-amber-900 hover:bg-amber-100 text-center cursor-pointer min-h-[38px]"
+                        >
+                          계정 배포
+                        </button>
+                        <button
+                          onClick={() => {
+                            setUserToEditCreds(u);
+                            setNewLoginId(u.loginId || '');
+                            setNewPassword(u.loginPassword || '');
+                          }}
+                          className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer min-h-[38px] flex items-center gap-1"
+                        >
+                          <KeyRound className="h-3.5 w-3.5" />
+                          <span>비번</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setUserToEdit(u);
+                            setEditTeam(u.team || u.department || '영업1팀');
+                            setEditSite(u.assignedSite);
+                            setEditPosition((u.position as AllowedPosition) || '과장');
+                          }}
+                          className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer min-h-[38px] flex items-center gap-1"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                          <span>수정</span>
+                        </button>
+                        <button
+                          onClick={() => handleToggleStatus(u)}
+                          className={`rounded-xl px-3 py-2 text-xs font-bold cursor-pointer min-h-[38px] ${
+                            u.status === 'active'
+                              ? 'border border-slate-300 text-slate-600 hover:bg-slate-100'
+                              : 'bg-emerald-600 text-white hover:bg-emerald-500'
+                          }`}
+                        >
+                          {u.status === 'active' ? '차단' : '활성'}
+                        </button>
+                        {!(u.loginId === 'admin' || u.uid === 'super-admin-root' || u.uid === profile?.uid) && (
+                          <button
+                            onClick={() => setUserToDelete(u)}
+                            className="rounded-xl border border-rose-200 bg-white p-2 text-rose-500 hover:bg-rose-50 cursor-pointer min-h-[38px]"
+                            title="직원 삭제"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="p-8 text-center text-xs text-slate-400">
+              해당 조건의 직원 정보가 없습니다.
+            </div>
+          )}
         </div>
       </div>
 

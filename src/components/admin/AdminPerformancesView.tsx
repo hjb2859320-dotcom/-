@@ -694,17 +694,17 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab('employees')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 sm:px-4 py-2.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'employees'
               ? 'bg-[#0F1E36] text-white shadow-md'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
           }`}
         >
           <Users className="h-4 w-4 text-amber-400" />
-          <span>직원별 실적 한눈에 보기</span>
+          <span>직원별 실적</span>
           <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] text-amber-400 font-extrabold">
             {filteredEmployeeList.length}명
           </span>
@@ -712,7 +712,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
 
         <button
           onClick={() => setActiveTab('ledger')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 sm:px-4 py-2.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'ledger'
               ? 'bg-[#0F1E36] text-white shadow-md'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -727,14 +727,14 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
 
         <button
           onClick={() => setActiveTab('audit')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 sm:px-4 py-2.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'audit'
               ? 'bg-[#0F1E36] text-white shadow-md'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
           }`}
         >
           <History className="h-4 w-4 text-purple-400" />
-          <span>시스템 감사로그 (Audit Log)</span>
+          <span>시스템 감사로그</span>
           <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] text-slate-700 font-bold">
             {auditLogs.length}건
           </span>

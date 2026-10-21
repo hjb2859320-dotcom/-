@@ -1,7 +1,19 @@
 @import "tailwindcss";
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
   body {
     font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    overflow-x: hidden;
+    min-width: 320px;
   }
+}
+
+/* Prevent awkward single-letter Korean word wrapping while preserving long numbers/IDs */
+.keep-all {
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }

@@ -180,59 +180,60 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-xs animate-in fade-in">
+      <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-900 px-6 py-4 text-white">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-400 text-slate-950 font-bold">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-900 px-4 sm:px-6 py-3.5 sm:py-4 text-white shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-400 text-slate-950 font-black text-sm">
               +
             </div>
             <div>
-              <h3 className="font-bold text-sm">신규 실적 등록</h3>
-              <p className="text-[11px] text-slate-400">
+              <h3 className="font-bold text-xs sm:text-sm">신규 실적 등록</h3>
+              <p className="text-[10px] sm:text-[11px] text-slate-400">
                 (주)이도 부동산 분양대행 실적 전산 입력
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            aria-label="닫기"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
           {error && (
-            <div className="mb-4 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
-              <span>{error}</span>
+            <div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+              <span className="leading-relaxed keep-all">{error}</span>
             </div>
           )}
 
           {duplicateWarning && (
-            <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+            <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
               <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
-              <span>{duplicateWarning}</span>
+              <span className="leading-relaxed keep-all">{duplicateWarning}</span>
             </div>
           )}
 
           {showConfirm ? (
             /* Confirmation step */
             <div className="space-y-4">
-              <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 text-xs text-blue-900">
+              <div className="rounded-xl bg-blue-50 border border-blue-100 p-3.5 sm:p-4 text-xs text-blue-900">
                 <div className="flex items-center gap-2 font-bold text-blue-950 mb-1">
-                  <CheckCircle2 className="h-4 w-4 text-blue-600" />
-                  <span>실적 등록 전 입력 정보를 최종 확인해 주세요</span>
+                  <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" />
+                  <span className="keep-all">실적 등록 전 입력 정보를 최종 확인해 주세요</span>
                 </div>
-                <p className="text-[11px] text-blue-700 leading-relaxed">
+                <p className="text-[11px] text-blue-700 leading-relaxed keep-all">
                   저장된 실적은 전산 통계에 즉시 반영되며, 등록 이력(Audit Log)이 기록됩니다.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5 text-xs">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 sm:p-4 space-y-2 text-xs">
                 <div className="flex justify-between border-b border-slate-200/80 pb-2">
                   <span className="text-slate-500">실적 구분:</span>
                   <span className="font-bold text-slate-900">
@@ -288,19 +289,19 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                 )}
                 {memo && (
                   <div className="flex justify-between pt-1">
-                    <span className="text-slate-500">특이 메모:</span>
-                    <span className="font-medium text-slate-700 text-right max-w-[240px] truncate">
+                    <span className="text-slate-500 shrink-0 mr-2">특이 메모:</span>
+                    <span className="font-medium text-slate-700 text-right truncate">
                       {memo}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col-reverse sm:flex-row gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowConfirm(false)}
-                  className="flex-1 rounded-xl border border-slate-300 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="w-full sm:flex-1 rounded-xl border border-slate-300 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer min-h-[42px]"
                 >
                   수정하기
                 </button>
@@ -308,7 +309,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                   type="button"
                   disabled={submitting}
                   onClick={handleFinalSubmit}
-                  className="flex-1 rounded-xl bg-blue-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-500 transition-colors disabled:opacity-60 cursor-pointer"
+                  className="w-full sm:flex-1 rounded-xl bg-blue-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-500 transition-colors disabled:opacity-60 cursor-pointer min-h-[42px]"
                 >
                   {submitting ? '저장 중...' : '확인 및 최종 저장'}
                 </button>
@@ -326,25 +327,25 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                   <button
                     type="button"
                     onClick={() => setPerfType('contract')}
-                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-xs font-bold transition-all cursor-pointer min-h-[42px] ${
                       perfType === 'contract'
                         ? 'border-blue-600 bg-blue-50/70 text-blue-700 shadow-xs'
                         : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                     }`}
                   >
-                    <FileCheck2 className="h-4 w-4" />
+                    <FileCheck2 className="h-4 w-4 shrink-0" />
                     <span>계약 실적</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setPerfType('visitor')}
-                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-xs font-bold transition-all cursor-pointer min-h-[42px] ${
                       perfType === 'visitor'
                         ? 'border-blue-600 bg-blue-50/70 text-blue-700 shadow-xs'
                         : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                     }`}
                   >
-                    <Users2 className="h-4 w-4" />
+                    <Users2 className="h-4 w-4 shrink-0" />
                     <span>내방객 실적</span>
                   </button>
                 </div>
@@ -361,7 +362,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                     required
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2.5 sm:py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                   />
                 </div>
 
@@ -372,7 +373,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                   <select
                     value={siteName}
                     onChange={(e) => setSiteName(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2.5 sm:py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                   >
                     {projectSites.length > 0 ? (
                       projectSites.map((s) => (
@@ -389,9 +390,9 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
 
               {/* Dynamic fields based on perfType */}
               {perfType === 'contract' ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 sm:p-4 space-y-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                    <FileCheck2 className="h-4 w-4 text-blue-600" />
+                    <FileCheck2 className="h-4 w-4 text-blue-600 shrink-0" />
                     <span>계약 세부 항목</span>
                   </div>
 
@@ -405,14 +406,14 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                       value={contractIdentifier}
                       onChange={(e) => setContractIdentifier(e.target.value)}
                       placeholder="예: 104동 1205호, 근생 102호"
-                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none font-medium"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 sm:py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none font-medium"
                     />
-                    <p className="mt-1 text-[11px] text-slate-500">
+                    <p className="mt-1 text-[10px] sm:text-[11px] text-slate-500 keep-all">
                       * 고객 개인정보 보호를 위해 고객 실명/주민번호는 입력하지 마시고 동·호수만 입력해 주세요.
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 mb-1">
                         계약 건수 <span className="text-rose-500">*</span>
@@ -423,7 +424,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                         max="50"
                         value={contractCount}
                         onChange={(e) => setContractCount(Number(e.target.value))}
-                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 sm:py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                       />
                     </div>
 
@@ -434,7 +435,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                       <select
                         value={status}
                         onChange={(e) => setStatus(e.target.value as 'completed' | 'cancelled')}
-                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 sm:py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                       >
                         <option value="completed">계약 완료</option>
                         <option value="cancelled">계약 취소</option>
@@ -443,13 +444,13 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 sm:p-4 space-y-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                    <Users2 className="h-4 w-4 text-emerald-600" />
+                    <Users2 className="h-4 w-4 text-emerald-600 shrink-0" />
                     <span>내방객 세부 항목</span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 mb-1">
                         내방객 수 (명) <span className="text-rose-500">*</span>
@@ -460,7 +461,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                         max="500"
                         value={visitorCount}
                         onChange={(e) => setVisitorCount(Number(e.target.value))}
-                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 sm:py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                       />
                     </div>
 
@@ -471,7 +472,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                       <select
                         value={visitorType}
                         onChange={(e) => setVisitorType(e.target.value as VisitorCategory)}
-                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 sm:py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                       >
                         <option value="new">신규 내방</option>
                         <option value="revisit">재방문 상담</option>
@@ -486,7 +487,7 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                     <select
                       value={funnelSource}
                       onChange={(e) => setFunnelSource(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 sm:py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                     >
                       {FUNNEL_SOURCES.map((f) => (
                         <option key={f} value={f}>
@@ -512,18 +513,18 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                  className="w-full sm:w-auto rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer min-h-[42px]"
                 >
                   취소
                 </button>
                 <button
                   type="button"
                   onClick={handleValidateAndPreConfirm}
-                  className="rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-500 transition-colors cursor-pointer"
+                  className="w-full sm:w-auto rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-500 transition-colors cursor-pointer min-h-[42px]"
                 >
                   내용 확인 및 다음 단계
                 </button>
@@ -535,3 +536,4 @@ export const PerformanceRegisterModal: React.FC<PerformanceRegisterModalProps> =
     </div>
   );
 };
+

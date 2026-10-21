@@ -18,6 +18,7 @@ import {
   Calendar,
   Network,
   Crown,
+  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { LeedoLogo } from '../common/LeedoLogo';
@@ -35,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { profile, isAdmin, isTeamLeader, canAccessTeamLeaderSystem } = useAuth();
+  const { profile, logout, isAdmin, isTeamLeader, canAccessTeamLeaderSystem } = useAuth();
 
   const isExecutive = ['대표', '이사', '본부장'].includes(profile?.position || '');
 
@@ -80,22 +81,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs lg:hidden transition-opacity"
         />
       )}
 
       {/* Sidebar container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 flex w-72 flex-col border-r border-slate-800 bg-[#0F1E36] text-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-0 bottom-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r border-slate-800 bg-[#0F1E36] text-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
+          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
         {/* Brand Header with Uploaded Official Logo */}
-        <div className="flex h-16 items-center justify-between border-b border-slate-800/80 px-5">
+        <div className="flex h-14 sm:h-16 items-center justify-between border-b border-slate-800/80 px-4 sm:px-5">
           <LeedoLogo size="md" showText={true} lightText={true} />
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 lg:hidden"
+            aria-label="메뉴 닫기"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden cursor-pointer active:scale-95 transition-all"
           >
             <X className="h-5 w-5" />
           </button>
@@ -272,8 +274,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Footer info */}
-        <div className="border-t border-slate-800/80 p-3.5 text-[11px] text-slate-400">
+        {/* Mobile quick actions & footer info */}
+        <div className="border-t border-slate-800/80 p-3 sm:p-3.5 space-y-2 text-[11px] text-slate-400">
+          <div className="flex items-center gap-2 lg:hidden pb-1">
+            <button
+              onClick={() => handleSelect('profile')}
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 cursor-pointer"
+            >
+              <User className="h-3.5 w-3.5 text-amber-400" />
+              <span>내 정보</span>
+            </button>
+            <button
+              onClick={() => {
+                onClose();
+                logout();
+              }}
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-rose-900/60 bg-rose-950/40 py-2 text-xs font-bold text-rose-300 hover:bg-rose-900/60 cursor-pointer"
+            >
+              <LogOut className="h-3.5 w-3.5 text-rose-400" />
+              <span>로그아웃</span>
+            </button>
+          </div>
+
           <div className="flex items-center justify-between font-medium">
             <span className="text-[10px]">LEEDO Intranet v2.5</span>
             <span className="inline-flex items-center gap-1 text-emerald-400 text-[10px]">

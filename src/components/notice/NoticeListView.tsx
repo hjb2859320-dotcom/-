@@ -174,26 +174,26 @@ export const NoticeListView: React.FC<NoticeListViewProps> = ({
                   : 'border-slate-200 bg-white hover:bg-slate-50/80 shadow-xs'
               }`}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex items-center gap-2">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1.5 flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {n.isImportant && (
-                      <span className="flex items-center gap-1 rounded bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                      <span className="flex shrink-0 items-center gap-1 rounded bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
                         <Pin className="h-3 w-3" />
                         필독 공지
                       </span>
                     )}
-                    <h3 className="font-bold text-slate-900 text-sm">{n.title}</h3>
+                    <h3 className="font-bold text-slate-900 text-xs sm:text-sm keep-all break-words">{n.title}</h3>
                   </div>
-                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed keep-all">
                     {n.content}
                   </p>
-                  <div className="flex items-center gap-4 text-[11px] text-slate-400 pt-1">
-                    <span className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400 pt-1">
+                    <span className="flex items-center gap-1 shrink-0">
                       <User className="h-3 w-3" />
                       {n.authorName}
                     </span>
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 shrink-0">
                       <Calendar className="h-3 w-3" />
                       {new Date(n.createdAt).toLocaleDateString('ko-KR')}
                     </span>

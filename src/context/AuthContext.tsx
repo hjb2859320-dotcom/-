@@ -5,6 +5,7 @@ import {
   getUserProfile,
   createUserProfile,
   authenticateUser,
+  purgeAllTestAccounts,
   DEFAULT_USERS,
 } from '../services/db';
 import type { UserProfile } from '../types';
@@ -57,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     testFirestoreConnection();
+    purgeAllTestAccounts().catch(() => {});
 
     // Check if auto-login session exists and refresh latest status from DB
     const initAuth = async () => {
@@ -75,6 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               localStorage.setItem('leedo_current_session', JSON.stringify(fresh));
             } else if (fresh) {
               setProfile(fresh);
+            } else {
+              setProfile(null);
             }
           }
         } catch (err) {

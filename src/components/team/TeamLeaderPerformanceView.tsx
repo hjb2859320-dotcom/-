@@ -809,7 +809,7 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
         </div>
 
         {/* Desktop Table View */}
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100/70 text-[11px] font-black text-slate-600 uppercase tracking-wider">
@@ -829,7 +829,7 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
               {memberSummaries.length > 0 ? (
-                memberSummaries.map((item, idx) => (
+                memberSummaries.map((item) => (
                   <tr
                     key={item.member.uid}
                     className="hover:bg-slate-50/90 transition-colors group"
@@ -949,6 +949,113 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Responsive Cards View */}
+        <div className="block md:hidden divide-y divide-slate-100">
+          {memberSummaries.length > 0 ? (
+            memberSummaries.map((item) => (
+              <div key={item.member.uid} className="p-4 space-y-3">
+                {/* Member Identity Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-black text-xs shadow-xs ${
+                        item.isLeader
+                          ? 'bg-amber-500 text-slate-950 font-black ring-2 ring-amber-300'
+                          : 'bg-slate-800 text-white'
+                      }`}
+                    >
+                      {item.member.name.substring(0, 2)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-extrabold text-sm text-slate-900">
+                          {item.member.name}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-600">
+                          {item.member.position}
+                        </span>
+                        {item.isLeader && (
+                          <span className="rounded bg-amber-400/20 px-1.5 py-0.2 text-[10px] font-black text-amber-800">
+                            팀장
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                        <Building className="h-3 w-3 text-slate-400 shrink-0" />
+                        <span className="truncate max-w-[180px]">{item.member.assignedSite || '전사 통합'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                      parseFloat(item.conversionRate) >= 15
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : parseFloat(item.conversionRate) > 0
+                        ? 'bg-slate-100 text-slate-800'
+                        : 'bg-slate-50 text-slate-400'
+                    }`}
+                  >
+                    전환율 {item.conversionRate}%
+                  </span>
+                </div>
+
+                {/* 2-Column Performance Metric Box (내방객 수 vs 계약 실적) */}
+                <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-50 p-2.5 border border-slate-100">
+                  {/* Left: 내방객 수 */}
+                  <div className="rounded-lg bg-blue-50/70 p-2 border border-blue-100">
+                    <div className="text-[10px] font-bold text-blue-700 flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      <span>월별 내방객 수</span>
+                    </div>
+                    <div className="text-base font-black text-blue-900 mt-0.5">
+                      {item.totalVisitors}명
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-0.5">
+                      신규 {item.newVisitors} · 재방문 {item.revisitVisitors}
+                    </div>
+                  </div>
+
+                  {/* Right: 계약 실적 */}
+                  <div className="rounded-lg bg-amber-50/70 p-2 border border-amber-100">
+                    <div className="text-[10px] font-bold text-amber-800 flex items-center gap-1">
+                      <Award className="h-3 w-3" />
+                      <span>월별 계약 실적</span>
+                    </div>
+                    <div className="text-base font-black text-amber-950 mt-0.5">
+                      {item.totalContracts}건
+                    </div>
+                    <div className="text-[10px] text-amber-800 truncate mt-0.5">
+                      {item.contractUnits.length > 0
+                        ? item.contractUnits.slice(0, 2).join(', ')
+                        : '완료건 없음'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer: Date & Action */}
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-slate-400">
+                    최근 실적일: <strong className="text-slate-600">{item.latestDate}</strong>
+                  </span>
+                  <button
+                    onClick={() => setSelectedMember(item.member)}
+                    className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-blue-600 shadow-xs hover:bg-blue-50 hover:border-blue-300 transition-all cursor-pointer min-h-[38px]"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    <span>실적 대장 상세</span>
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-8 text-center text-xs text-slate-400">
+              <Users className="mx-auto h-8 w-8 text-slate-300 mb-2" />
+              <p className="font-semibold">조회된 팀원이 없거나 등록된 실적이 없습니다.</p>
+            </div>
+          )}
         </div>
       </div>
 

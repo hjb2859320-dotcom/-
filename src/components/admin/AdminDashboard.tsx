@@ -100,9 +100,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Admin Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-linear-to-r from-[#0F1E36] via-[#162B4E] to-slate-900 p-6 text-white shadow-xl border border-slate-700/60">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-[#0F1E36] via-[#162B4E] to-slate-900 p-4 sm:p-6 text-white shadow-xl border border-slate-700/60">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="flex items-center gap-1 rounded bg-amber-400 px-2 py-0.5 text-xs font-black text-slate-950">
               <ShieldCheck className="h-3.5 w-3.5" />
               최고 관리자 콘솔
@@ -111,19 +111,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               로그인: {profile?.name} {profile?.position}
             </span>
           </div>
-          <h1 className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">
+          <h1 className="mt-2 text-lg font-bold tracking-tight sm:text-2xl keep-all">
             (주)이도 회사 전체 통합 분양 실적 및 직원 관리 센터
           </h1>
-          <p className="mt-1 text-xs text-slate-300">
+          <p className="mt-1 text-xs text-slate-300 keep-all">
             직원 등록 승인, 현장별 계약 통계, 부정/중복 등록 모니터링 및 엑셀 정산 데이터를 관리합니다.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           {pendingEmployees.length > 0 && (
             <button
               onClick={() => onNavigate('admin_employees')}
-              className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2.5 text-xs font-bold text-slate-950 shadow-md hover:bg-amber-400 transition-colors cursor-pointer"
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2.5 text-xs font-bold text-slate-950 shadow-md hover:bg-amber-400 transition-colors cursor-pointer min-h-[42px]"
             >
               <Clock className="h-4 w-4 animate-spin" />
               <span>승인 대기 {pendingEmployees.length}건 처리</span>
@@ -132,7 +132,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={handleExportAll}
-            className="flex items-center gap-1.5 rounded-xl bg-slate-800 border border-slate-600 px-3.5 py-2.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer"
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-slate-800 border border-slate-600 px-3.5 py-2.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer min-h-[42px]"
           >
             <Download className="h-4 w-4 text-slate-300" />
             <span>회사 전체 실적 엑셀 다운로드</span>
@@ -141,7 +141,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </div>
 
       {/* Admin KPI Overview Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 min-[640px]:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
         {/* Total Employees */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500">

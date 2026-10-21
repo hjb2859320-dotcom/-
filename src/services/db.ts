@@ -128,216 +128,39 @@ export const DEFAULT_USERS: UserProfile[] = [
     createdAt: '2020-01-01T09:00:00.000Z',
     approvedAt: '2020-01-01T09:00:00.000Z',
   },
-  {
-    uid: 'demo-admin-01',
-    name: '김도현',
-    loginId: 'admin_kim',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2021-0001',
-    team: '경영관리팀',
-    assignedSite: '힐스테이트 센트럴 송도',
-    position: '관리자',
-    phoneNumber: '010-8291-5501',
-    email: 'admin.kim@leedo.co.kr',
-    role: 'admin',
-    status: 'active',
-    createdAt: '2021-03-01T09:00:00.000Z',
-    approvedAt: '2021-03-01T09:00:00.000Z',
-  },
-  {
-    uid: 'demo-exec-01',
-    name: '이도원',
-    loginId: 'ceo',
-    loginPassword: '1959',
-    employeeNumber: 'LD-2018-0001',
-    team: '경영기획팀',
-    assignedSite: '송도 랜드마크시티',
-    position: '대표',
-    phoneNumber: '010-9999-1004',
-    email: 'ceo.lee@leedo.co.kr',
-    role: 'admin',
-    status: 'active',
-    createdAt: '2018-01-01T09:00:00.000Z',
-    approvedAt: '2018-01-01T09:00:00.000Z',
-    approvedBy: '이사회',
-  },
-  {
-    uid: 'exec-kang-01',
-    name: '강태훈',
-    loginId: 'thkang',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2020-0004',
-    team: '경영기획팀',
-    assignedSite: '힐스테이트 센트럴 송도',
-    position: '이사',
-    phoneNumber: '010-4421-8890',
-    email: 'th.kang@leedo.co.kr',
-    role: 'admin',
-    status: 'active',
-    createdAt: '2020-02-15T09:00:00.000Z',
-    approvedAt: '2020-02-15T09:00:00.000Z',
-  },
-  {
-    uid: 'exec-jung-01',
-    name: '정민호',
-    loginId: 'mhjung',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2021-0012',
-    team: '영업1팀',
-    assignedSite: '힐스테이트 센트럴 송도',
-    position: '본부장',
-    phoneNumber: '010-7712-3341',
-    email: 'mh.jung@leedo.co.kr',
-    role: 'admin',
-    status: 'active',
-    createdAt: '2021-05-10T09:00:00.000Z',
-    approvedAt: '2021-05-10T09:00:00.000Z',
-  },
-  {
-    uid: 'demo-leader-01',
-    name: '정현우',
-    loginId: 'leader_jung',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2022-0008',
-    team: '영업1팀',
-    assignedSite: '힐스테이트 센트럴 송도',
-    position: '팀장',
-    phoneNumber: '010-5821-3902',
-    email: 'hw.jung@leedo.co.kr',
-    role: 'employee',
-    status: 'active',
-    createdAt: '2022-03-01T09:00:00.000Z',
-    approvedAt: '2022-03-01T09:00:00.000Z',
-  },
-  {
-    uid: 'demo-leader-02',
-    name: '박진수',
-    loginId: 'leader_park',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2022-0010',
-    team: '영업2팀',
-    assignedSite: '동탄 레이크 타워',
-    position: '팀장',
-    phoneNumber: '010-6712-4419',
-    email: 'js.park@leedo.co.kr',
-    role: 'employee',
-    status: 'active',
-    createdAt: '2022-04-15T09:00:00.000Z',
-    approvedAt: '2022-04-15T09:00:00.000Z',
-  },
-  {
-    uid: 'demo-emp-01',
-    name: '박서준',
-    loginId: 'seojun',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2024-0015',
-    team: '영업1팀',
-    assignedSite: '힐스테이트 센트럴 송도',
-    position: '과장',
-    phoneNumber: '010-3342-9981',
-    email: 'seojun.park@leedo.co.kr',
-    role: 'employee',
-    status: 'active',
-    createdAt: '2024-01-10T10:00:00.000Z',
-    approvedAt: '2024-01-11T14:30:00.000Z',
-    approvedBy: '관리자',
-  },
-  {
-    uid: 'emp-choi-01',
-    name: '최유나',
-    loginId: 'ynchoi',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2023-0028',
-    team: '영업1팀',
-    assignedSite: '힐스테이트 센트럴 송도',
-    position: '실장',
-    phoneNumber: '010-9182-4432',
-    email: 'yuna.choi@leedo.co.kr',
-    role: 'employee',
-    status: 'active',
-    createdAt: '2023-08-01T10:00:00.000Z',
-    approvedAt: '2023-08-02T11:00:00.000Z',
-  },
-  {
-    uid: 'emp-yoon-01',
-    name: '윤동현',
-    loginId: 'dhyoon',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2025-0033',
-    team: '영업2팀',
-    assignedSite: '동탄 레이크 타워',
-    position: '대리',
-    phoneNumber: '010-2391-6672',
-    email: 'dh.yoon@leedo.co.kr',
-    role: 'employee',
-    status: 'active',
-    createdAt: '2025-02-01T10:00:00.000Z',
-    approvedAt: '2025-02-02T10:00:00.000Z',
-  },
-  {
-    uid: 'emp-han-01',
-    name: '한수진',
-    loginId: 'sjhan',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2025-0040',
-    team: '영업2팀',
-    assignedSite: '동탄 레이크 타워',
-    position: '주임',
-    phoneNumber: '010-8812-3301',
-    email: 'sj.han@leedo.co.kr',
-    role: 'employee',
-    status: 'active',
-    createdAt: '2025-04-10T10:00:00.000Z',
-    approvedAt: '2025-04-11T10:00:00.000Z',
-  },
-  {
-    uid: 'emp-song-01',
-    name: '송민우',
-    loginId: 'mwsong',
-    loginPassword: '1234',
-    employeeNumber: 'LD-2024-0019',
-    team: '분양기획팀',
-    assignedSite: '힐스테이트 센트럴 송도',
-    position: '과장',
-    phoneNumber: '010-4412-8822',
-    email: 'mw.song@leedo.co.kr',
-    role: 'employee',
-    status: 'active',
-    createdAt: '2024-03-01T10:00:00.000Z',
-    approvedAt: '2024-03-02T10:00:00.000Z',
-  },
-  {
-    uid: 'demo-pending-01',
-    name: '이지은',
-    loginId: 'leedo_2041',
-    loginPassword: 'ld2041',
-    employeeNumber: 'LD-2026-0042',
-    team: '영업2팀',
-    assignedSite: '동탄 레이크 타워',
-    position: '대리',
-    phoneNumber: '010-5512-4478',
-    email: 'jieun.lee@leedo.co.kr',
-    role: 'employee',
-    status: 'pending',
-    applicationNote: '분양상담 및 고객관리 업무 지원',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    uid: 'pending-kim-01',
-    name: '김진호',
-    loginId: 'leedo_3910',
-    loginPassword: 'ld3910',
-    employeeNumber: 'LD-2026-0048',
-    team: '마케팅팀',
-    assignedSite: '힐스테이트 센트럴 송도',
-    position: '주임',
-    phoneNumber: '010-6712-9943',
-    email: 'jh.kim@leedo.co.kr',
-    role: 'employee',
-    status: 'pending',
-    applicationNote: '온라인 마케팅 및 분양홍보',
-    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-  },
+];
+
+// List of test user IDs to purge during cleanup
+export const PURGED_TEST_UIDS = [
+  'demo-admin-01',
+  'demo-exec-01',
+  'exec-kang-01',
+  'exec-jung-01',
+  'demo-leader-01',
+  'demo-leader-02',
+  'demo-emp-01',
+  'emp-choi-01',
+  'emp-yoon-01',
+  'emp-han-01',
+  'emp-song-01',
+  'demo-pending-01',
+  'pending-kim-01',
+];
+
+export const PURGED_TEST_LOGIN_IDS = [
+  'admin_kim',
+  'ceo',
+  'thkang',
+  'mhjung',
+  'leader_jung',
+  'leader_park',
+  'seojun',
+  'ynchoi',
+  'dhyoon',
+  'sjhan',
+  'mwsong',
+  'leedo_2041',
+  'leedo_3910',
 ];
 
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
@@ -439,15 +262,28 @@ export async function deleteUserProfile(uid: string): Promise<void> {
 }
 
 export async function getAllUsers(): Promise<UserProfile[]> {
-  const localUsers = getLocalCache<UserProfile[]>('users', DEFAULT_USERS);
+  const rawLocalUsers = getLocalCache<UserProfile[]>('users', DEFAULT_USERS);
+  const localUsers = rawLocalUsers.filter(
+    (u) =>
+      !PURGED_TEST_UIDS.includes(u.uid) &&
+      !PURGED_TEST_LOGIN_IDS.includes(u.loginId?.toLowerCase() || '')
+  );
+  setLocalCache('users', localUsers.length > 0 ? localUsers : DEFAULT_USERS);
+
   try {
     const snap = await getDocs(collection(db, 'users'));
     if (!snap.empty) {
-      const dbUsers = snap.docs.map((d) => {
-        const u = d.data() as UserProfile;
-        if (!u.team && u.department) u.team = u.department;
-        return u;
-      });
+      const dbUsers = snap.docs
+        .map((d) => {
+          const u = d.data() as UserProfile;
+          if (!u.team && u.department) u.team = u.department;
+          return u;
+        })
+        .filter(
+          (u) =>
+            !PURGED_TEST_UIDS.includes(u.uid) &&
+            !PURGED_TEST_LOGIN_IDS.includes(u.loginId?.toLowerCase() || '')
+        );
 
       const mergedMap = new Map<string, UserProfile>();
       // 1. Load local cache
@@ -481,7 +317,7 @@ export async function getAllUsers(): Promise<UserProfile[]> {
   } catch (err) {
     console.warn('Firestore getAllUsers fallback to local:', err);
   }
-  return localUsers;
+  return localUsers.length > 0 ? localUsers : DEFAULT_USERS;
 }
 
 /**
@@ -737,356 +573,9 @@ export async function deleteProjectSite(id: string): Promise<void> {
 /* -------------------------------------------------------------
  * 4. PERFORMANCE RECORDS (실적 관리 및 감사 로그)
  * ------------------------------------------------------------- */
-export const DEFAULT_PERFORMANCES: PerformanceRecord[] = [
-  {
-    id: 'perf-001',
-    employeeId: 'demo-emp-01',
-    employeeName: '박서준',
-    employeeNumber: 'LD-2024-0015',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-10-18',
-    yearMonth: '2026-10',
-    contractIdentifier: '104동 2201호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '펜트하우스 VIP 고객 계약 완료. 정계약 체결',
-    createdAt: '2026-10-18T14:20:00.000Z',
-  },
-  {
-    id: 'perf-002',
-    employeeId: 'demo-emp-01',
-    employeeName: '박서준',
-    employeeNumber: 'LD-2024-0015',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-10-16',
-    yearMonth: '2026-10',
-    contractIdentifier: '102동 1503호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '사전 예약 고객 청약 가점 우수자 동반 계약',
-    createdAt: '2026-10-16T11:30:00.000Z',
-  },
-  {
-    id: 'perf-003',
-    employeeId: 'demo-emp-01',
-    employeeName: '박서준',
-    employeeNumber: 'LD-2024-0015',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'visitor',
-    date: '2026-10-17',
-    yearMonth: '2026-10',
-    visitorCount: 6,
-    visitorType: 'new',
-    funnelSource: '온라인 / SNS 광고',
-    status: 'completed',
-    memo: '주말 사전 예약 가족 단위 내방객 6명 모델하우스 투어',
-    createdAt: '2026-10-17T16:00:00.000Z',
-  },
-  {
-    id: 'perf-004',
-    employeeId: 'emp-choi-01',
-    employeeName: '최유나',
-    employeeNumber: 'LD-2023-0028',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-10-17',
-    yearMonth: '2026-10',
-    contractIdentifier: '103동 1802호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '고객 대출 심사 완료 후 즉시 계약서 발행',
-    createdAt: '2026-10-17T15:10:00.000Z',
-  },
-  {
-    id: 'perf-005',
-    employeeId: 'emp-choi-01',
-    employeeName: '최유나',
-    employeeNumber: 'LD-2023-0028',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-10-14',
-    yearMonth: '2026-10',
-    contractIdentifier: '101동 904호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '중소형 타입 실거주 희망 계약자',
-    createdAt: '2026-10-14T10:40:00.000Z',
-  },
-  {
-    id: 'perf-006',
-    employeeId: 'emp-choi-01',
-    employeeName: '최유나',
-    employeeNumber: 'LD-2023-0028',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'visitor',
-    date: '2026-10-18',
-    yearMonth: '2026-10',
-    visitorCount: 12,
-    visitorType: 'new',
-    funnelSource: '현수막 / 전단 배포',
-    status: 'completed',
-    memo: '송도 1공구 현수막 유입 고객 집중 상담',
-    createdAt: '2026-10-18T17:30:00.000Z',
-  },
-  {
-    id: 'perf-007',
-    employeeId: 'emp-yoon-01',
-    employeeName: '윤동현',
-    employeeNumber: 'LD-2025-0033',
-    team: '영업2팀',
-    siteName: '동탄 레이크 타워',
-    type: 'contract',
-    date: '2026-10-15',
-    yearMonth: '2026-10',
-    contractIdentifier: '201동 1402호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '동탄 호수공원 조망권 로열층 계약',
-    createdAt: '2026-10-15T13:00:00.000Z',
-  },
-  {
-    id: 'perf-008',
-    employeeId: 'emp-yoon-01',
-    employeeName: '윤동현',
-    employeeNumber: 'LD-2025-0033',
-    team: '영업2팀',
-    siteName: '동탄 레이크 타워',
-    type: 'contract',
-    date: '2026-10-12',
-    yearMonth: '2026-10',
-    contractIdentifier: '202동 805호',
-    contractCount: 1,
-    status: 'cancelled',
-    cancelReason: '고객 개인 신용대출 한도 축소로 인한 계약 포기 요청',
-    cancelledAt: '2026-10-13T11:00:00.000Z',
-    cancelledBy: '윤동현',
-    createdAt: '2026-10-12T15:20:00.000Z',
-  },
-  {
-    id: 'perf-009',
-    employeeId: 'emp-han-01',
-    employeeName: '한수진',
-    employeeNumber: 'LD-2025-0040',
-    team: '영업2팀',
-    siteName: '동탄 레이크 타워',
-    type: 'visitor',
-    date: '2026-10-18',
-    yearMonth: '2026-10',
-    visitorCount: 8,
-    visitorType: 'revisit',
-    funnelSource: '전화 / 사전 예약',
-    status: 'completed',
-    memo: '2차 계약 검토 재방문 고객 8명 세무 상담 연계',
-    createdAt: '2026-10-18T13:40:00.000Z',
-  },
-  {
-    id: 'perf-010',
-    employeeId: 'emp-song-01',
-    employeeName: '송민우',
-    employeeNumber: 'LD-2024-0019',
-    team: '분양기획팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-10-11',
-    yearMonth: '2026-10',
-    contractIdentifier: '103동 501호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '법인 임직원 숙소 용도 일괄 심사 통과',
-    createdAt: '2026-10-11T16:10:00.000Z',
-  },
-  {
-    id: 'perf-011',
-    employeeId: 'exec-jung-01',
-    employeeName: '정민호',
-    employeeNumber: 'LD-2021-0012',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-10-08',
-    yearMonth: '2026-10',
-    contractIdentifier: '104동 4501호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '최상층 펜트하우스 특별 호실 직접 클로징',
-    createdAt: '2026-10-08T18:00:00.000Z',
-  },
-  // Previous month records (2026-09)
-  {
-    id: 'perf-012',
-    employeeId: 'demo-emp-01',
-    employeeName: '박서준',
-    employeeNumber: 'LD-2024-0015',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-09-25',
-    yearMonth: '2026-09',
-    contractIdentifier: '101동 1102호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '9월 마감 우수 실적',
-    createdAt: '2026-09-25T14:00:00.000Z',
-  },
-  {
-    id: 'perf-013',
-    employeeId: 'demo-emp-01',
-    employeeName: '박서준',
-    employeeNumber: 'LD-2024-0015',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'visitor',
-    date: '2026-09-20',
-    yearMonth: '2026-09',
-    visitorCount: 15,
-    visitorType: 'new',
-    funnelSource: '온라인 / SNS 광고',
-    status: 'completed',
-    createdAt: '2026-09-20T16:00:00.000Z',
-  },
-  {
-    id: 'perf-014',
-    employeeId: 'emp-choi-01',
-    employeeName: '최유나',
-    employeeNumber: 'LD-2023-0028',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'visitor',
-    date: '2026-09-15',
-    yearMonth: '2026-09',
-    visitorCount: 18,
-    visitorType: 'new',
-    funnelSource: '현수막 / 전단 배포',
-    status: 'completed',
-    memo: '추석 전 집중 홍보 내방객 상담',
-    createdAt: '2026-09-15T14:30:00.000Z',
-  },
-  {
-    id: 'perf-015',
-    employeeId: 'emp-choi-01',
-    employeeName: '최유나',
-    employeeNumber: 'LD-2023-0028',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-09-18',
-    yearMonth: '2026-09',
-    contractIdentifier: '102동 1201호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '송도 1공구 거주자 갈아타기 계약 완료',
-    createdAt: '2026-09-18T16:20:00.000Z',
-  },
-  {
-    id: 'perf-016',
-    employeeId: 'emp-yoon-01',
-    employeeName: '윤동현',
-    employeeNumber: 'LD-2025-0033',
-    team: '영업2팀',
-    siteName: '동탄 레이크 타워',
-    type: 'visitor',
-    date: '2026-09-11',
-    yearMonth: '2026-09',
-    visitorCount: 14,
-    visitorType: 'new',
-    funnelSource: '온라인 / SNS 광고',
-    status: 'completed',
-    createdAt: '2026-09-11T15:00:00.000Z',
-  },
-  {
-    id: 'perf-017',
-    employeeId: 'emp-yoon-01',
-    employeeName: '윤동현',
-    employeeNumber: 'LD-2025-0033',
-    team: '영업2팀',
-    siteName: '동탄 레이크 타워',
-    type: 'contract',
-    date: '2026-09-22',
-    yearMonth: '2026-09',
-    contractIdentifier: '201동 603호',
-    contractCount: 1,
-    status: 'completed',
-    createdAt: '2026-09-22T11:00:00.000Z',
-  },
-  {
-    id: 'perf-018',
-    employeeId: 'emp-han-01',
-    employeeName: '한수진',
-    employeeNumber: 'LD-2025-0040',
-    team: '영업2팀',
-    siteName: '동탄 레이크 타워',
-    type: 'contract',
-    date: '2026-09-28',
-    yearMonth: '2026-09',
-    contractIdentifier: '202동 1901호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '신혼부부 특별공급 당첨 잔여 계약',
-    createdAt: '2026-09-28T17:10:00.000Z',
-  },
-  {
-    id: 'perf-019',
-    employeeId: 'demo-leader-01',
-    employeeName: '정현우',
-    employeeNumber: 'LD-2022-0008',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'contract',
-    date: '2026-10-10',
-    yearMonth: '2026-10',
-    contractIdentifier: '101동 2801호',
-    contractCount: 1,
-    status: 'completed',
-    memo: '팀장 직접 지원 VIP 동반 계약 체결',
-    createdAt: '2026-10-10T14:00:00.000Z',
-  },
-  {
-    id: 'perf-020',
-    employeeId: 'demo-leader-01',
-    employeeName: '정현우',
-    employeeNumber: 'LD-2022-0008',
-    team: '영업1팀',
-    siteName: '힐스테이트 센트럴 송도',
-    type: 'visitor',
-    date: '2026-10-14',
-    yearMonth: '2026-10',
-    visitorCount: 10,
-    visitorType: 'revisit',
-    funnelSource: '지인 소개 / 추천',
-    status: 'completed',
-    memo: '기존 수분양자 추천 우량 고객 모델하우스 안내',
-    createdAt: '2026-10-14T15:30:00.000Z',
-  },
-];
+export const DEFAULT_PERFORMANCES: PerformanceRecord[] = [];
 
-export const DEFAULT_AUDIT_LOGS: PerformanceAuditLog[] = [
-  {
-    id: 'log-001',
-    performanceId: 'perf-001',
-    action: 'create',
-    performedBy: 'demo-emp-01',
-    performedByName: '박서준',
-    details: '[계약] 힐스테이트 센트럴 송도 신규 실적 등록 (104동 2201호 1건)',
-    timestamp: '2026-10-18T14:20:00.000Z',
-  },
-  {
-    id: 'log-002',
-    performanceId: 'perf-008',
-    action: 'cancel',
-    performedBy: 'emp-yoon-01',
-    performedByName: '윤동현',
-    details: '[계약 취소] 동탄 레이크 타워 (202동 805호) - 사유: 고객 개인 신용대출 한도 축소로 인한 계약 포기 요청',
-    timestamp: '2026-10-13T11:00:00.000Z',
-  },
-];
+export const DEFAULT_AUDIT_LOGS: PerformanceAuditLog[] = [];
 
 export async function getAllPerformances(yearMonth?: string): Promise<PerformanceRecord[]> {
   try {
@@ -1100,11 +589,17 @@ export async function getAllPerformances(yearMonth?: string): Promise<Performanc
     }
     const snap = await getDocs(q);
     if (!snap.empty) {
-      const dbRecords = snap.docs.map((d) => {
-        const r = d.data() as PerformanceRecord;
-        if (!r.team && r.department) r.team = r.department;
-        return r;
-      });
+      const dbRecords = snap.docs
+        .map((d) => {
+          const r = d.data() as PerformanceRecord;
+          if (!r.team && r.department) r.team = r.department;
+          return r;
+        })
+        .filter(
+          (r) =>
+            !PURGED_TEST_UIDS.includes(r.employeeId) &&
+            !r.id.startsWith('perf-')
+        );
 
       // The cloud database is the single source of truth:
       // Authoritative remote records replace the local cache so deleted items disappear permanently
@@ -1115,7 +610,13 @@ export async function getAllPerformances(yearMonth?: string): Promise<Performanc
     console.warn('Firestore getAllPerformances fallback to local:', err);
   }
 
-  const localPerfs = getLocalCache<PerformanceRecord[]>('performances', DEFAULT_PERFORMANCES);
+  const rawLocal = getLocalCache<PerformanceRecord[]>('performances', DEFAULT_PERFORMANCES);
+  const localPerfs = rawLocal.filter(
+    (r) =>
+      !PURGED_TEST_UIDS.includes(r.employeeId) &&
+      !r.id.startsWith('perf-')
+  );
+  setLocalCache('performances', localPerfs);
   return yearMonth ? localPerfs.filter((r) => r.yearMonth === yearMonth) : localPerfs;
 }
 
@@ -1304,10 +805,10 @@ export const DEFAULT_RESOURCES: ResourceItem[] = [
     description: '타입별(84㎡A/B, 102㎡, 125㎡, 펜트하우스) 유니트 아이소 및 인테리어 마감재 스펙시트입니다. 고객 상담 시 태블릿 또는 출력용으로 활용하시기 바랍니다.',
     fileName: '힐스테이트_송도_상품설명서_최종본.pdf',
     fileSize: '18.4 MB',
-    authorId: 'emp-song-01',
-    authorName: '송민우',
-    authorTeam: '분양기획팀',
-    authorPosition: '과장',
+    authorId: 'super-admin-root',
+    authorName: '관리자',
+    authorTeam: '경영관리팀',
+    authorPosition: '관리자',
     createdAt: '2026-10-15T11:00:00.000Z',
     downloadCount: 38,
   },
@@ -1318,10 +819,10 @@ export const DEFAULT_RESOURCES: ResourceItem[] = [
     description: '2026년 최신 청약 가점 계산법, 무주택 기간 산정 기준, 특별공급 자격 검증표를 정리한 필수 상담 가이드라인입니다.',
     fileName: '2026_청약제도개정_상담체크리스트.pdf',
     fileSize: '4.2 MB',
-    authorId: 'emp-choi-01',
-    authorName: '최유나',
-    authorTeam: '영업1팀',
-    authorPosition: '실장',
+    authorId: 'super-admin-root',
+    authorName: '관리자',
+    authorTeam: '경영관리팀',
+    authorPosition: '관리자',
     createdAt: '2026-10-10T14:30:00.000Z',
     downloadCount: 52,
   },
@@ -1332,8 +833,8 @@ export const DEFAULT_RESOURCES: ResourceItem[] = [
     description: '본사 표준 분양공급 계약서 양식 및 추가 선택품목 계약서 서식 파일입니다. 계약자 인감증명서 첨부 확인 요망.',
     fileName: 'LEEDO_표준공급계약서_서식.hwp',
     fileSize: '1.8 MB',
-    authorId: 'demo-admin-01',
-    authorName: '김도현',
+    authorId: 'super-admin-root',
+    authorName: '관리자',
     authorTeam: '경영관리팀',
     authorPosition: '관리자',
     createdAt: '2026-10-05T09:20:00.000Z',
@@ -1411,44 +912,7 @@ export async function incrementResourceDownload(id: string): Promise<void> {
 /* -------------------------------------------------------------
  * 6. PERSONAL SCHEDULES (개인일정표)
  * ------------------------------------------------------------- */
-export const DEFAULT_SCHEDULES: PersonalSchedule[] = [
-  {
-    id: 'sched-1',
-    employeeId: 'demo-emp-01',
-    date: '2026-10-19',
-    time: '14:00',
-    title: '104동 2201호 VIP 고객 대출 자서 및 중도금 상담',
-    category: '고객상담',
-    location: '힐스테이트 모델하우스 2층 VIP실',
-    memo: '우리은행 대출상담사 동석 진행',
-    completed: false,
-    createdAt: '2026-10-18T10:00:00.000Z',
-  },
-  {
-    id: 'sched-2',
-    employeeId: 'demo-emp-01',
-    date: '2026-10-20',
-    time: '11:00',
-    title: '동탄 레이크 타워 잔여세대 방문 사전예약 2팀',
-    category: '내방예약',
-    location: '동탄 홍보관',
-    memo: '호수 조망 테라스 세대 문의',
-    completed: false,
-    createdAt: '2026-10-18T11:00:00.000Z',
-  },
-  {
-    id: 'sched-3',
-    employeeId: 'demo-emp-01',
-    date: '2026-10-21',
-    time: '16:00',
-    title: '102동 1503호 계약서 정식 날인 및 영수증 전달',
-    category: '계약체결',
-    location: '본사 영업1팀 회의실',
-    memo: '가족관계증명서 및 인감도장 지참 요청 완료',
-    completed: false,
-    createdAt: '2026-10-18T12:00:00.000Z',
-  },
-];
+export const DEFAULT_SCHEDULES: PersonalSchedule[] = [];
 
 export async function getPersonalSchedules(employeeId: string): Promise<PersonalSchedule[]> {
   const allSchedules = getLocalCache<PersonalSchedule[]>('personal_schedules', DEFAULT_SCHEDULES);
@@ -1528,7 +992,7 @@ export const DEFAULT_NOTICES: Notice[] = [
     content:
       '임직원 여러분 안녕하십니까. 4분기 분양 실적 마감은 익월 3일 18:00까지입니다.\n동·호수 중복 입력 방지를 위해 계약서 사본 확인 후 전산에 즉시 입력해주시기 바라며, 취소 건은 삭제하지 마시고 반드시 [취소] 상태로 변경 처리 바랍니다.',
     isImportant: true,
-    authorId: 'demo-admin-01',
+    authorId: 'super-admin-root',
     authorName: '관리자',
     createdAt: new Date().toISOString(),
   },
@@ -1538,7 +1002,7 @@ export const DEFAULT_NOTICES: Notice[] = [
     content:
       '주말 내방객 급증에 대비하여 신규 내방객 및 재방문 상담 카드를 정확히 기재해 주시기 바랍니다. 유입경로(인터넷 광고, 현수막, 전화예약 등) 분석을 통해 내방 마케팅을 적극 지원할 예정입니다.',
     isImportant: false,
-    authorId: 'demo-admin-01',
+    authorId: 'super-admin-root',
     authorName: '관리자',
     createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
   },
@@ -1548,7 +1012,7 @@ export const DEFAULT_NOTICES: Notice[] = [
     content:
       '고객의 주민등록번호, 계좌번호 등 불필요한 민감정보는 실적 메모나 시스템 어디에도 기재하지 마시고 동·호수 및 지정 식별코드만 활용하시기 바랍니다.',
     isImportant: true,
-    authorId: 'demo-admin-01',
+    authorId: 'super-admin-root',
     authorName: '관리자',
     createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
   },
@@ -1617,7 +1081,7 @@ export const DEFAULT_EVENTS: InternalEvent[] = [
     endDate: '2026-11-30',
     status: 'ongoing',
     howToParticipate: '실적 등록 시 해당 현장 계약 건 자동 집계 및 관리자 최종 확인',
-    authorId: 'demo-admin-01',
+    authorId: 'super-admin-root',
     authorName: '이도 경영관리팀',
     createdAt: new Date().toISOString(),
   },
@@ -1630,7 +1094,7 @@ export const DEFAULT_EVENTS: InternalEvent[] = [
     endDate: '2026-10-31',
     status: 'ongoing',
     howToParticipate: '소속 팀별 내방 및 유효 청약 상담 실적 합산 집계',
-    authorId: 'demo-admin-01',
+    authorId: 'super-admin-root',
     authorName: '마케팅팀',
     createdAt: new Date().toISOString(),
   },
@@ -1689,20 +1153,7 @@ export async function deleteEvent(id: string): Promise<void> {
 /* -------------------------------------------------------------
  * 9. EMPLOYEE OF THE MONTH (이달의 직원)
  * ------------------------------------------------------------- */
-export const DEFAULT_STAR: EmployeeOfTheMonth = {
-  id: 'star-2026-10',
-  yearMonth: '2026-10',
-  employeeId: 'demo-emp-01',
-  employeeName: '박서준',
-  team: '영업1팀',
-  assignedSite: '힐스테이트 센트럴 송도',
-  position: '과장',
-  criteriaCategory: 'contract',
-  reason: '송도 랜드마크시티 펜트하우스 및 대형 평형 단독 최다 계약 달성 및 신규 상담사 멘토링 기여',
-  isPublic: true,
-  awardedBy: '관리자',
-  awardedAt: new Date().toISOString(),
-};
+export const DEFAULT_STARS: EmployeeOfTheMonth[] = [];
 
 export async function getEmployeeOfTheMonthList(): Promise<EmployeeOfTheMonth[]> {
   try {
@@ -1720,7 +1171,7 @@ export async function getEmployeeOfTheMonthList(): Promise<EmployeeOfTheMonth[]>
   } catch (err) {
     console.warn('Firestore getEmployeeOfTheMonthList fallback to local:', err);
   }
-  return getLocalCache('employee_of_the_month', [DEFAULT_STAR]);
+  return getLocalCache('employee_of_the_month', []);
 }
 
 export async function getLatestEmployeeOfTheMonth(): Promise<EmployeeOfTheMonth | null> {
@@ -1730,7 +1181,7 @@ export async function getLatestEmployeeOfTheMonth(): Promise<EmployeeOfTheMonth 
 }
 
 export async function saveEmployeeOfTheMonth(award: EmployeeOfTheMonth): Promise<void> {
-  const current = getLocalCache('employee_of_the_month', [DEFAULT_STAR]);
+  const current = getLocalCache<EmployeeOfTheMonth[]>('employee_of_the_month', []);
   const exists = current.findIndex((a) => a.id === award.id);
   const updated = exists >= 0
     ? current.map((a) => (a.id === award.id ? award : a))
@@ -1749,7 +1200,7 @@ export async function saveEmployeeOfTheMonth(award: EmployeeOfTheMonth): Promise
 }
 
 export async function deleteEmployeeOfTheMonth(id: string): Promise<void> {
-  const current = getLocalCache('employee_of_the_month', [DEFAULT_STAR]);
+  const current = getLocalCache<EmployeeOfTheMonth[]>('employee_of_the_month', []);
   const updated = current.filter((a) => a.id !== id);
   setLocalCache('employee_of_the_month', updated);
 
@@ -1864,4 +1315,81 @@ export async function seedInitialDataIfEmpty(currentUserUid: string, currentUser
     console.warn('Seed data skipped:', err);
   }
 }
+
+/**
+ * Purge test accounts and demo data from Firestore and local cache for production deployment
+ */
+export async function purgeAllTestAccounts(): Promise<void> {
+  // 1. Clean localStorage
+  if (typeof window !== 'undefined') {
+    try {
+      const rawUsers = getLocalCache<UserProfile[]>('users', DEFAULT_USERS);
+      const cleanedUsers = rawUsers.filter(
+        (u) =>
+          !PURGED_TEST_UIDS.includes(u.uid) &&
+          !PURGED_TEST_LOGIN_IDS.includes(u.loginId?.toLowerCase() || '')
+      );
+      setLocalCache('users', cleanedUsers.length > 0 ? cleanedUsers : DEFAULT_USERS);
+
+      const rawPerfs = getLocalCache<PerformanceRecord[]>('performances', []);
+      const cleanedPerfs = rawPerfs.filter(
+        (p) =>
+          !PURGED_TEST_UIDS.includes(p.employeeId) &&
+          !p.id.startsWith('perf-')
+      );
+      setLocalCache('performances', cleanedPerfs);
+
+      const rawSchedules = getLocalCache<PersonalSchedule[]>('personal_schedules', []);
+      const cleanedSchedules = rawSchedules.filter((s) => !PURGED_TEST_UIDS.includes(s.employeeId));
+      setLocalCache('personal_schedules', cleanedSchedules);
+
+      const rawStars = getLocalCache<EmployeeOfTheMonth[]>('employee_of_the_month', []);
+      const cleanedStars = rawStars.filter((s) => !PURGED_TEST_UIDS.includes(s.employeeId));
+      setLocalCache('employee_of_the_month', cleanedStars);
+
+      // If current active session is a test user, log out immediately
+      const currentSession =
+        localStorage.getItem('leedo_current_session') ||
+        sessionStorage.getItem('leedo_current_session');
+      if (currentSession) {
+        try {
+          const parsed = JSON.parse(currentSession);
+          if (
+            PURGED_TEST_UIDS.includes(parsed?.uid) ||
+            PURGED_TEST_LOGIN_IDS.includes(parsed?.loginId?.toLowerCase() || '')
+          ) {
+            localStorage.removeItem('leedo_current_session');
+            sessionStorage.removeItem('leedo_current_session');
+            localStorage.removeItem('leedo_auto_login');
+            localStorage.setItem('leedo_logged_out', 'true');
+          }
+        } catch {
+          // ignore
+        }
+      }
+    } catch (e) {
+      console.warn('Local cache purge error:', e);
+    }
+  }
+
+  // 2. Clean Firestore documents
+  try {
+    for (const uid of PURGED_TEST_UIDS) {
+      await deleteDoc(doc(db, 'users', uid)).catch(() => {});
+    }
+
+    for (let i = 1; i <= 20; i++) {
+      const perfId = `perf-${String(i).padStart(3, '0')}`;
+      await deleteDoc(doc(db, 'performances', perfId)).catch(() => {});
+    }
+
+    await deleteDoc(doc(db, 'employee_of_the_month', 'star-2026-10')).catch(() => {});
+
+    // Ensure super-admin-root is present in Firestore
+    await setDoc(doc(db, 'users', DEFAULT_USERS[0].uid), DEFAULT_USERS[0], { merge: true }).catch(() => {});
+  } catch (err) {
+    console.warn('Firestore purge error:', err);
+  }
+}
+
 
