@@ -200,20 +200,20 @@ export const EventListView: React.FC<EventListViewProps> = ({
                     )}
                   </div>
 
-                  <h3 className="mt-3 font-bold text-slate-900 text-base">{ev.title}</h3>
-                  <p className="mt-2 text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                  <h3 className="mt-3 font-bold text-slate-900 text-sm sm:text-base keep-all break-words">{ev.title}</h3>
+                  <p className="mt-2 text-xs text-slate-600 line-clamp-3 leading-relaxed keep-all">
                     {ev.description}
                   </p>
 
                   <div className="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-slate-700 border border-slate-100">
                     <div className="font-bold text-[11px] text-slate-500 mb-0.5">참여 방법:</div>
-                    <div>{ev.howToParticipate || '실적 등록 시 자동 참여 집계'}</div>
+                    <div className="keep-all">{ev.howToParticipate || '실적 등록 시 자동 참여 집계'}</div>
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 font-medium">
-                    {ev.startDate} ~ {ev.endDate}
+                <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <span className="text-slate-400 font-medium text-[11px] sm:text-xs">
+                    기간: {ev.startDate} ~ {ev.endDate}
                   </span>
 
                   <button
@@ -221,7 +221,7 @@ export const EventListView: React.FC<EventListViewProps> = ({
                       e.stopPropagation();
                       handleToggleJoin(ev.id);
                     }}
-                    className={`rounded-xl px-3 py-1.5 font-bold transition-all ${
+                    className={`w-full sm:w-auto text-center rounded-xl px-3.5 py-2 font-bold text-xs transition-all cursor-pointer min-h-[38px] ${
                       isJoined
                         ? 'bg-emerald-600 text-white'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700'

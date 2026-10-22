@@ -813,18 +813,18 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100/70 text-[11px] font-black text-slate-600 uppercase tracking-wider">
-                <th className="py-3.5 pl-6 pr-3">팀원 정보</th>
-                <th className="py-3.5 px-3">직급 / 사번</th>
-                <th className="py-3.5 px-3">담당 분양 현장</th>
-                <th className="py-3.5 px-3 text-center bg-blue-50/50 text-blue-900 border-x border-blue-100">
+                <th className="py-3.5 pl-6 pr-3 whitespace-nowrap">팀원 정보</th>
+                <th className="py-3.5 px-3 whitespace-nowrap">직급 / 사번</th>
+                <th className="py-3.5 px-3 whitespace-nowrap">담당 분양 현장</th>
+                <th className="py-3.5 px-3 text-center bg-blue-50/50 text-blue-900 border-x border-blue-100 whitespace-nowrap">
                   월별 내방객 수
                 </th>
-                <th className="py-3.5 px-3 text-center bg-amber-50/50 text-amber-900 border-r border-amber-100">
+                <th className="py-3.5 px-3 text-center bg-amber-50/50 text-amber-900 border-r border-amber-100 whitespace-nowrap">
                   월별 계약 실적
                 </th>
-                <th className="py-3.5 px-3 text-center">계약 전환율</th>
-                <th className="py-3.5 px-3 text-center">최근 실적일</th>
-                <th className="py-3.5 pl-3 pr-6 text-right">상세 조회</th>
+                <th className="py-3.5 px-3 text-center whitespace-nowrap">계약 전환율</th>
+                <th className="py-3.5 px-3 text-center whitespace-nowrap">최근 실적일</th>
+                <th className="py-3.5 pl-3 pr-6 text-right whitespace-nowrap">상세 조회</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
@@ -835,7 +835,7 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
                     className="hover:bg-slate-50/90 transition-colors group"
                   >
                     {/* 팀원 정보 */}
-                    <td className="py-4 pl-6 pr-3">
+                    <td className="py-4 pl-6 pr-3 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div
                           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-black text-xs shadow-xs ${
@@ -847,17 +847,17 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
                           {item.member.name.substring(0, 2)}
                         </div>
                         <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-extrabold text-sm text-slate-900">
+                          <div className="flex items-center gap-1.5 whitespace-nowrap">
+                            <span className="font-extrabold text-sm text-slate-900 whitespace-nowrap">
                               {item.member.name}
                             </span>
                             {item.isLeader && (
-                              <span className="rounded bg-amber-400/20 px-1.5 py-0.2 text-[9px] font-black text-amber-800">
+                              <span className="rounded bg-amber-400/20 px-1.5 py-0.2 text-[9px] font-black text-amber-800 whitespace-nowrap">
                                 팀장
                               </span>
                             )}
                           </div>
-                          <span className="text-[11px] text-slate-400">
+                          <span className="text-[11px] text-slate-400 whitespace-nowrap">
                             {item.member.loginId ? `@${item.member.loginId}` : item.member.email}
                           </span>
                         </div>
@@ -865,28 +865,28 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
                     </td>
 
                     {/* 직급 / 사번 */}
-                    <td className="py-4 px-3">
-                      <div className="font-bold text-slate-800">{item.member.position}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                    <td className="py-4 px-3 whitespace-nowrap">
+                      <div className="font-bold text-slate-800 whitespace-nowrap">{item.member.position}</div>
+                      <div className="text-[10px] text-slate-400 font-mono whitespace-nowrap">
                         {item.member.employeeNumber || '-'}
                       </div>
                     </td>
 
                     {/* 담당 분양 현장 */}
-                    <td className="py-4 px-3">
-                      <div className="flex items-center gap-1 text-slate-700 font-semibold">
+                    <td className="py-4 px-3 whitespace-nowrap">
+                      <div className="flex items-center gap-1 text-slate-700 font-semibold whitespace-nowrap">
                         <Building className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate max-w-[160px]">{item.member.assignedSite || '전사 통합'}</span>
+                        <span className="truncate max-w-[160px] whitespace-nowrap">{item.member.assignedSite || '전사 통합'}</span>
                       </div>
                     </td>
 
                     {/* 월별 내방객 수 */}
-                    <td className="py-4 px-3 bg-blue-50/30 border-x border-blue-100/70 text-center">
-                      <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 font-black text-blue-900 text-xs">
-                        <Users className="h-3.5 w-3.5 text-blue-600" />
+                    <td className="py-4 px-3 bg-blue-50/30 border-x border-blue-100/70 text-center whitespace-nowrap">
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 font-black text-blue-900 text-xs whitespace-nowrap">
+                        <Users className="h-3.5 w-3.5 text-blue-600 shrink-0" />
                         <span>{item.totalVisitors}명</span>
                       </div>
-                      <div className="mt-1 flex items-center justify-center gap-2 text-[10px] text-slate-500">
+                      <div className="mt-1 flex items-center justify-center gap-2 text-[10px] text-slate-500 whitespace-nowrap">
                         <span>신규 {item.newVisitors}</span>
                         <span>•</span>
                         <span>재방문 {item.revisitVisitors}</span>
@@ -894,13 +894,13 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
                     </td>
 
                     {/* 월별 계약 실적 */}
-                    <td className="py-4 px-3 bg-amber-50/30 border-r border-amber-100/70 text-center">
-                      <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 font-black text-amber-950 text-xs shadow-xs">
-                        <Award className="h-3.5 w-3.5 text-amber-600" />
+                    <td className="py-4 px-3 bg-amber-50/30 border-r border-amber-100/70 text-center whitespace-nowrap">
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 font-black text-amber-950 text-xs shadow-xs whitespace-nowrap">
+                        <Award className="h-3.5 w-3.5 text-amber-600 shrink-0" />
                         <span>{item.totalContracts}건 완료</span>
                       </div>
                       {item.contractUnits.length > 0 && (
-                        <div className="mt-1 text-[10px] text-amber-800 font-medium truncate max-w-[150px] mx-auto">
+                        <div className="mt-1 text-[10px] text-amber-800 font-medium truncate max-w-[150px] mx-auto whitespace-nowrap">
                           {item.contractUnits.slice(0, 2).join(', ')}
                           {item.contractUnits.length > 2 && ` 외 ${item.contractUnits.length - 2}건`}
                         </div>
@@ -908,9 +908,9 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
                     </td>
 
                     {/* 계약 전환율 */}
-                    <td className="py-4 px-3 text-center">
+                    <td className="py-4 px-3 text-center whitespace-nowrap">
                       <span
-                        className={`font-black text-xs ${
+                        className={`font-black text-xs whitespace-nowrap ${
                           parseFloat(item.conversionRate) >= 15
                             ? 'text-emerald-600'
                             : parseFloat(item.conversionRate) > 0
@@ -923,17 +923,17 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
                     </td>
 
                     {/* 최근 실적일 */}
-                    <td className="py-4 px-3 text-center text-slate-500 text-[11px]">
+                    <td className="py-4 px-3 text-center text-slate-500 text-[11px] whitespace-nowrap">
                       {item.latestDate}
                     </td>
 
                     {/* 액션 버튼 */}
-                    <td className="py-4 pl-3 pr-6 text-right">
+                    <td className="py-4 pl-3 pr-6 text-right whitespace-nowrap">
                       <button
                         onClick={() => setSelectedMember(item.member)}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all cursor-pointer whitespace-nowrap"
                       >
-                        <Eye className="h-3.5 w-3.5" />
+                        <Eye className="h-3.5 w-3.5 shrink-0" />
                         <span>실적 대장</span>
                       </button>
                     </td>

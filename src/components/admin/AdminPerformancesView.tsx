@@ -1110,19 +1110,19 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
             <table className="w-full text-left text-xs text-slate-700">
               <thead className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
                 <tr>
-                  <th className="px-4 py-3 text-center w-12">순위</th>
-                  <th className="px-4 py-3">직원 정보 (성명 / 직급)</th>
-                  <th className="px-4 py-3">소속 팀</th>
-                  <th className="px-4 py-3 text-center bg-blue-50/60 text-blue-900">
-                    유효 계약 (완료)
+                  <th className="px-4 py-3 text-center w-12 whitespace-nowrap">순위</th>
+                  <th className="px-4 py-3 text-left whitespace-nowrap">직원 정보</th>
+                  <th className="px-4 py-3 text-left whitespace-nowrap">소속팀</th>
+                  <th className="px-4 py-3 text-center bg-blue-50/70 text-blue-900 whitespace-nowrap">
+                    유효계약(완료)
                   </th>
-                  <th className="px-4 py-3 text-center">취소 계약</th>
-                  <th className="px-4 py-3 text-center">총 계약 합계</th>
-                  <th className="px-4 py-3 text-center bg-indigo-50/60 text-indigo-900">
+                  <th className="px-4 py-3 text-center whitespace-nowrap">취소계약</th>
+                  <th className="px-4 py-3 text-center whitespace-nowrap">총 계약 합계</th>
+                  <th className="px-4 py-3 text-center bg-indigo-50/70 text-indigo-900 whitespace-nowrap">
                     총 내방객 수
                   </th>
-                  <th className="px-4 py-3 text-center">최근 실적 등록일</th>
-                  <th className="px-4 py-3 text-center">원장 조회</th>
+                  <th className="px-4 py-3 text-center whitespace-nowrap">최근 실적 등록일</th>
+                  <th className="px-4 py-3 text-center whitespace-nowrap">원장 조회</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -1141,7 +1141,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                         key={item.user.uid}
                         className="hover:bg-slate-50/80 transition-colors"
                       >
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap">
                           {isTop1 ? (
                             <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-slate-950 font-black text-xs shadow-xs">
                               1
@@ -1155,83 +1155,94 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                           )}
                         </td>
 
-                        <td className="px-4 py-3">
+                        {/* 1. 직원 정보 (한줄 표시) */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           <div className="flex items-center gap-2.5">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white font-bold text-xs">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white font-bold text-xs shadow-xs">
                               {item.user.name.charAt(0)}
                             </div>
-                            <div>
-                              <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                                <span>{item.user.name}</span>
-                                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-semibold">
-                                  {item.user.position}
+                            <div className="flex items-center gap-2 whitespace-nowrap">
+                              <span className="font-extrabold text-sm text-slate-900 whitespace-nowrap">
+                                {item.user.name}
+                              </span>
+                              <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded-md font-bold whitespace-nowrap">
+                                {item.user.position}
+                              </span>
+                              {item.user.role === 'admin' && (
+                                <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-extrabold whitespace-nowrap">
+                                  관리자
                                 </span>
-                                {item.user.role === 'admin' && (
-                                  <span className="text-[9px] bg-amber-100 text-amber-800 px-1 rounded font-bold">
-                                    관리자
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-[10px] text-slate-400 font-medium">
-                                {item.user.phoneNumber}
-                              </div>
+                              )}
+                              {item.user.phoneNumber && (
+                                <span className="text-[11px] text-slate-400 font-normal whitespace-nowrap ml-1">
+                                  ({item.user.phoneNumber})
+                                </span>
+                              )}
                             </div>
                           </div>
                         </td>
 
-                        <td className="px-4 py-3">
-                          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                        {/* 2. 소속팀 (한줄 표시) */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-800 whitespace-nowrap">
                             {item.user.team || item.user.department || '팀 미배정'}
                           </span>
                         </td>
 
-                        <td className="px-4 py-3 text-center bg-blue-50/40">
-                          <span className="font-black text-blue-700 text-sm">
-                            {item.validContracts}
+                        {/* 3. 유효계약(완료) (한줄 표시) */}
+                        <td className="px-4 py-3.5 text-center bg-blue-50/40 whitespace-nowrap">
+                          <span className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-black text-blue-800 shadow-xs whitespace-nowrap">
+                            <FileCheck2 className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+                            <span>{item.validContracts}건 완료</span>
                           </span>
-                          <span className="text-xs text-blue-500 ml-0.5 font-bold">건</span>
                         </td>
 
-                        <td className="px-4 py-3 text-center">
+                        {/* 4. 취소계약 (한줄 표시) */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap">
                           {item.cancelledContracts > 0 ? (
-                            <span className="font-semibold text-rose-600">
-                              {item.cancelledContracts}건
+                            <span className="inline-flex items-center justify-center gap-1 rounded-full bg-rose-50 border border-rose-200 px-2.5 py-1 text-xs font-bold text-rose-700 whitespace-nowrap">
+                              <XCircle className="h-3 w-3 text-rose-500 shrink-0" />
+                              <span>{item.cancelledContracts}건</span>
                             </span>
                           ) : (
-                            <span className="text-slate-300">-</span>
+                            <span className="text-slate-400 font-medium whitespace-nowrap">0건</span>
                           )}
                         </td>
 
-                        <td className="px-4 py-3 text-center font-bold text-slate-800">
-                          {item.totalContracts}건
+                        {/* 5. 총 계약 합계 */}
+                        <td className="px-4 py-3.5 text-center font-bold text-slate-800 whitespace-nowrap">
+                          <span className="whitespace-nowrap">{item.totalContracts}건</span>
                         </td>
 
-                        <td className="px-4 py-3 text-center bg-indigo-50/40">
-                          <span className="font-bold text-indigo-700 text-sm">
-                            {item.visitors}
-                          </span>
-                          <span className="text-xs text-indigo-500 ml-0.5 font-bold">명</span>
+                        {/* 6. 총 내방객 수 */}
+                        <td className="px-4 py-3.5 text-center bg-indigo-50/40 whitespace-nowrap">
+                          <div className="inline-flex items-center justify-center gap-1 rounded-full bg-indigo-100 px-3 py-1 font-black text-indigo-800 text-xs whitespace-nowrap">
+                            <Users2 className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                            <span>{item.visitors}명</span>
+                          </div>
                           {item.visitors > 0 && (
-                            <div className="text-[10px] text-slate-400">
-                              신규 {item.newVisitors} / 재방문 {item.revisitVisitors}
+                            <div className="text-[10px] text-slate-400 whitespace-nowrap mt-0.5">
+                              신규 {item.newVisitors} · 재방문 {item.revisitVisitors}
                             </div>
                           )}
                         </td>
 
-                        <td className="px-4 py-3 text-center text-[11px] text-slate-500">
+                        {/* 7. 최근 실적 등록일 */}
+                        <td className="px-4 py-3.5 text-center text-[11px] text-slate-500 whitespace-nowrap">
                           {item.latestDate}
                         </td>
 
-                        <td className="px-4 py-3 text-center">
+                        {/* 8. 원장 조회 액션 버튼 */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap">
                           <button
                             onClick={() => {
                               setSelectedEmployeeId(item.user.uid);
                               setActiveTab('ledger');
                             }}
-                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors cursor-pointer whitespace-nowrap"
                           >
                             <span>원장 보기</span>
-                            <ChevronRight className="h-3 w-3 text-slate-400" />
+                            <ChevronRight className="h-3 w-3 text-slate-400 shrink-0" />
                           </button>
                         </td>
                       </tr>
@@ -1268,15 +1279,15 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
             <table className="w-full text-left text-xs text-slate-700">
               <thead className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
                 <tr>
-                  <th className="px-4 py-3">발생일자</th>
-                  <th className="px-4 py-3">담당 직원</th>
-                  <th className="px-4 py-3">소속 팀</th>
-                  <th className="px-4 py-3">분양 현장</th>
-                  <th className="px-4 py-3">구분</th>
-                  <th className="px-4 py-3">실적 세부 정보</th>
-                  <th className="px-4 py-3 text-center">건수/인원</th>
-                  <th className="px-4 py-3 text-center">상태</th>
-                  <th className="px-4 py-3 text-center">관리</th>
+                  <th className="px-4 py-3 whitespace-nowrap">발생일자</th>
+                  <th className="px-4 py-3 whitespace-nowrap">담당 직원</th>
+                  <th className="px-4 py-3 whitespace-nowrap">소속팀</th>
+                  <th className="px-4 py-3 whitespace-nowrap">분양 현장</th>
+                  <th className="px-4 py-3 whitespace-nowrap">구분</th>
+                  <th className="px-4 py-3 whitespace-nowrap">실적 세부 정보</th>
+                  <th className="px-4 py-3 text-center whitespace-nowrap">건수/인원</th>
+                  <th className="px-4 py-3 text-center whitespace-nowrap">상태</th>
+                  <th className="px-4 py-3 text-center whitespace-nowrap">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -1294,94 +1305,94 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                         record.status === 'cancelled' ? 'bg-rose-50/30' : ''
                       }`}
                     >
-                      <td className="px-4 py-3 font-semibold text-slate-800">
+                      <td className="px-4 py-3 font-semibold text-slate-800 whitespace-nowrap">
                         {record.date}
                       </td>
 
-                      <td className="px-4 py-3">
-                        <div className="font-bold text-slate-900">{record.employeeName}</div>
-                        <div className="text-[10px] text-slate-400 font-mono">
-                          {record.employeeNumber}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 whitespace-nowrap">
+                          <span className="font-bold text-slate-900">{record.employeeName}</span>
+                          {record.employeeNumber && (
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              ({record.employeeNumber})
+                            </span>
+                          )}
                         </div>
                       </td>
 
-                      <td className="px-4 py-3">
-                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-700">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700 whitespace-nowrap">
                           {record.team || record.department || '-'}
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 font-semibold text-slate-800">
+                      <td className="px-4 py-3 font-semibold text-slate-800 whitespace-nowrap">
                         {record.siteName}
                       </td>
 
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {record.type === 'contract' ? (
-                          <span className="inline-flex items-center gap-1 rounded bg-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                          <span className="inline-flex items-center gap-1 rounded bg-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-700 whitespace-nowrap">
                             <FileCheck2 className="h-3 w-3" />
                             계약
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
+                          <span className="inline-flex items-center gap-1 rounded bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700 whitespace-nowrap">
                             <Users2 className="h-3 w-3" />
                             내방
                           </span>
                         )}
                       </td>
 
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {record.type === 'contract' ? (
-                          <div>
-                            <span className="font-bold text-slate-900">
+                          <div className="flex items-center gap-2 whitespace-nowrap">
+                            <span className="font-bold text-slate-900 whitespace-nowrap">
                               {record.contractIdentifier || '동호수 미기재'}
                             </span>
                             {record.memo && (
-                              <div className="text-[11px] text-slate-500 truncate max-w-xs">
-                                {record.memo}
-                              </div>
+                              <span className="text-[11px] text-slate-400 truncate max-w-xs">
+                                ({record.memo})
+                              </span>
                             )}
                           </div>
                         ) : (
-                          <div>
-                            <div className="font-semibold text-slate-900">
+                          <div className="flex items-center gap-2 whitespace-nowrap">
+                            <span className="font-semibold text-slate-900 whitespace-nowrap">
                               {record.visitorType === 'new' ? '신규 내방' : '재방문'}
-                              {record.funnelSource && (
-                                <span className="ml-1 text-[11px] text-slate-500">
-                                  ({record.funnelSource})
-                                </span>
-                              )}
-                            </div>
+                              {record.funnelSource && ` (${record.funnelSource})`}
+                            </span>
                             {record.memo && (
-                              <div className="text-[11px] text-slate-500 truncate max-w-xs">
-                                {record.memo}
-                              </div>
+                              <span className="text-[11px] text-slate-400 truncate max-w-xs">
+                                ({record.memo})
+                              </span>
                             )}
                           </div>
                         )}
                       </td>
 
-                      <td className="px-4 py-3 text-center font-bold text-slate-900">
+                      <td className="px-4 py-3 text-center font-bold text-slate-900 whitespace-nowrap">
                         {record.type === 'contract'
                           ? `${record.contractCount || 1}건`
                           : `${record.visitorCount || 0}명`}
                       </td>
 
-                      <td className="px-4 py-3 text-center">
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
                         {record.status === 'completed' ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap">
                             <CheckCircle2 className="h-3 w-3" />
                             완료
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-700 border border-rose-200">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-0.5 text-[11px] font-bold text-rose-700 border border-rose-200 whitespace-nowrap">
                             <XCircle className="h-3 w-3" />
                             취소
                           </span>
                         )}
                       </td>
 
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1.5 whitespace-nowrap">
                           <button
                             onClick={() => handleOpenDetailModal(record)}
                             className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors cursor-pointer"
@@ -1405,7 +1416,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                                 setCancelReason('');
                                 setCancelError(null);
                               }}
-                              className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[10px] font-bold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+                              className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[10px] font-bold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer whitespace-nowrap"
                               title="계약 취소 처리"
                             >
                               취소
@@ -1448,11 +1459,11 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
             <table className="w-full text-left text-xs text-slate-700">
               <thead className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
                 <tr>
-                  <th className="px-4 py-3 w-40">발생 일시</th>
-                  <th className="px-4 py-3 w-28">구분</th>
-                  <th className="px-4 py-3 w-40">수행자</th>
-                  <th className="px-4 py-3">변경 및 감사 상세 내역</th>
-                  <th className="px-4 py-3 text-center w-28">실적 ID</th>
+                  <th className="px-4 py-3 whitespace-nowrap">발생 일시</th>
+                  <th className="px-4 py-3 whitespace-nowrap">구분</th>
+                  <th className="px-4 py-3 whitespace-nowrap">수행자</th>
+                  <th className="px-4 py-3 whitespace-nowrap">변경 및 감사 상세 내역</th>
+                  <th className="px-4 py-3 text-center whitespace-nowrap">실적 ID</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -1465,29 +1476,29 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                 ) : (
                   auditLogs.map((log) => (
                     <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-4 py-3 font-mono text-[11px] text-slate-500">
+                      <td className="px-4 py-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                         {new Date(log.timestamp).toLocaleString('ko-KR')}
                       </td>
 
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {log.action === 'create' && (
-                          <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                          <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
                             신규 등록
                           </span>
                         )}
                         {log.action === 'cancel' && (
-                          <span className="rounded bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800">
+                          <span className="rounded bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800 whitespace-nowrap">
                             계약 취소
                           </span>
                         )}
                         {log.action === 'update' && (
-                          <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                          <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 whitespace-nowrap">
                             정보 수정
                           </span>
                         )}
                       </td>
 
-                      <td className="px-4 py-3 font-bold text-slate-900">
+                      <td className="px-4 py-3 font-bold text-slate-900 whitespace-nowrap">
                         {log.performedByName}
                       </td>
 
@@ -1495,7 +1506,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                         {log.details}
                       </td>
 
-                      <td className="px-4 py-3 text-center font-mono text-[10px] text-slate-400">
+                      <td className="px-4 py-3 text-center font-mono text-[10px] text-slate-400 whitespace-nowrap">
                         {log.performanceId.substring(0, 10)}...
                       </td>
                     </tr>

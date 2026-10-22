@@ -199,11 +199,11 @@ export const EmployeeOfTheMonthView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button
             onClick={loadData}
             disabled={loading}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition-all cursor-pointer"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition-all cursor-pointer min-h-[40px]"
             title="새로고침"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
@@ -212,22 +212,22 @@ export const EmployeeOfTheMonthView: React.FC = () => {
           {isAdmin && (
             <button
               onClick={handleOpenRegister}
-              className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow-md hover:bg-amber-400 transition-colors cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow-md hover:bg-amber-400 transition-colors cursor-pointer min-h-[40px]"
             >
               <Award className="h-4 w-4" />
-              <span>이달의 직원 선정하기 (관리자)</span>
+              <span>우수직원 선정 (관리자)</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Awards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {visibleAwards.length > 0 ? (
           visibleAwards.map((a, idx) => (
             <div
               key={a.id}
-              className={`rounded-2xl border p-6 shadow-xs flex flex-col justify-between transition-all ${
+              className={`rounded-2xl border p-4 sm:p-6 shadow-xs flex flex-col justify-between transition-all ${
                 idx === 0
                   ? 'border-amber-300 bg-linear-to-b from-amber-50/70 via-white to-white ring-2 ring-amber-200'
                   : 'border-slate-200 bg-white'

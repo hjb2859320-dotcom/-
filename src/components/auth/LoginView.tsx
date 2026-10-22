@@ -61,7 +61,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onGoToRegister }) => {
 
       <div className="w-full max-w-md relative z-10">
         {/* Brand Card */}
-        <div className="rounded-2xl border border-slate-700/80 bg-slate-800/90 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="rounded-2xl border border-slate-700/80 bg-slate-800/90 p-5 sm:p-8 shadow-2xl backdrop-blur-xl">
           {/* Logo & Headline */}
           <div className="flex flex-col items-center text-center">
             <LeedoLogo size="xl" showText={false} />

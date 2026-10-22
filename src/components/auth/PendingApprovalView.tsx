@@ -19,8 +19,8 @@ export const PendingApprovalView: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-900 px-4 py-12 relative">
-      <div className="w-full max-w-md rounded-2xl border border-slate-700/80 bg-slate-800 p-8 shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-slate-900 px-3 sm:px-4 py-8 sm:py-12 relative">
+      <div className="w-full max-w-md rounded-2xl border border-slate-700/80 bg-slate-800 p-5 sm:p-8 shadow-2xl">
         {/* Status Icon */}
         <div className="text-center">
           {isRejected ? (

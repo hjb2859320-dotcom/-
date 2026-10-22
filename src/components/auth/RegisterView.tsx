@@ -153,8 +153,8 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-900 px-4 py-12">
-      <div className="w-full max-w-lg rounded-2xl border border-slate-700/80 bg-slate-800 p-8 shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-slate-900 px-3 sm:px-4 py-8 sm:py-12">
+      <div className="w-full max-w-lg rounded-2xl border border-slate-700/80 bg-slate-800 p-5 sm:p-8 shadow-2xl">
         <button
           onClick={onBackToLogin}
           className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors mb-6 cursor-pointer"
@@ -164,13 +164,13 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onBackToLogin }) => 
         </button>
 
         <div className="border-b border-slate-700/80 pb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <LeedoLogo size="md" showText={true} lightText={true} />
-            <span className="rounded bg-amber-400/20 px-2.5 py-1 text-xs font-bold text-amber-300">
+            <span className="self-start sm:self-auto rounded bg-amber-400/20 px-2.5 py-1 text-xs font-bold text-amber-300">
               직원 등록 신청
             </span>
           </div>
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-slate-400 keep-all">
             실적 관리 시스템을 이용하기 위해 본인의 소속 팀, 직급 및 연락처 정보를 입력해 주세요.
           </p>
         </div>

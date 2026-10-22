@@ -186,22 +186,24 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Valid Contracts */}
-        <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-5 shadow-xs">
-          <div className="flex items-center justify-between text-blue-800">
-            <span className="text-xs font-bold">
-              {viewScope === 'monthly' ? `${selectedMonth} 유효 계약` : '전체 유효 계약'}
-            </span>
-            <div className="rounded-lg bg-blue-600 p-1.5 text-white">
-              <FileCheck2 className="h-4 w-4" />
+        <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-3.5 sm:p-5 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-blue-800">
+              <span className="text-xs font-bold keep-all">
+                {viewScope === 'monthly' ? `${selectedMonth} 유효 계약` : '전체 유효 계약'}
+              </span>
+              <div className="rounded-lg bg-blue-600 p-1.5 text-white">
+                <FileCheck2 className="h-4 w-4" />
+              </div>
             </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-1.5">
-            <span className="text-3xl font-black text-blue-950">
-              {viewScope === 'monthly' ? monthValidContracts : totalValidContracts}
-            </span>
-            <span className="text-sm font-bold text-blue-800">건</span>
+            <div className="mt-2.5 flex items-baseline gap-1.5">
+              <span className="text-2xl sm:text-3xl font-black text-blue-950">
+                {viewScope === 'monthly' ? monthValidContracts : totalValidContracts}
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-blue-800">건</span>
+            </div>
           </div>
           <div className="mt-2 text-[11px] text-blue-700">
             총 등록 {viewScope === 'monthly' ? monthContracts : totalContracts}건 중 취소{' '}
