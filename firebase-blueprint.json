@@ -70,14 +70,49 @@
         "description": { "type": "string", "description": "Resource description" },
         "fileName": { "type": "string", "description": "Attachment file name" },
         "fileSize": { "type": "string", "description": "Attachment file size" },
+        "attachments": { "type": "array", "description": "Array of file attachments" },
         "authorId": { "type": "string", "description": "Author UID" },
         "authorName": { "type": "string", "description": "Author name" },
         "authorTeam": { "type": "string", "description": "Author team" },
         "authorPosition": { "type": "string", "description": "Author position" },
         "downloadCount": { "type": "number", "description": "Download counter" },
-        "createdAt": { "type": "string", "description": "Created ISO timestamp" }
+        "createdAt": { "type": "string", "description": "Created ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "Updated ISO timestamp" }
       },
       "required": ["id", "title", "category", "description", "authorId", "authorName", "createdAt"]
+    },
+    "ResourceFile": {
+      "title": "ResourceFile",
+      "description": "Binary file metadata attached to a resource post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "File attachment unique ID" },
+        "resourceId": { "type": "string", "description": "Parent resource post ID" },
+        "fileName": { "type": "string", "description": "Original file name" },
+        "fileSize": { "type": "string", "description": "Human readable file size" },
+        "fileSizeBytes": { "type": "number", "description": "File size in bytes" },
+        "fileType": { "type": "string", "description": "File extension" },
+        "mimeType": { "type": "string", "description": "MIME type" },
+        "storagePath": { "type": "string", "description": "Storage chunk reference path" },
+        "totalChunks": { "type": "number", "description": "Total base64 binary chunks" },
+        "uploadedAt": { "type": "string", "description": "Upload timestamp" },
+        "uploadedBy": { "type": "string", "description": "Uploader employee UID" }
+      },
+      "required": ["id", "resourceId", "fileName", "fileSizeBytes", "uploadedAt", "uploadedBy"]
+    },
+    "ResourceFileChunk": {
+      "title": "ResourceFileChunk",
+      "description": "Segmented base64 binary payload of an uploaded file",
+      "type": "object",
+      "properties": {
+        "fileId": { "type": "string", "description": "Parent file attachment ID" },
+        "resourceId": { "type": "string", "description": "Parent resource post ID" },
+        "chunkIndex": { "type": "number", "description": "Zero-based chunk index" },
+        "totalChunks": { "type": "number", "description": "Total chunks for the file" },
+        "data": { "type": "string", "description": "Base64 encoded slice of binary" },
+        "createdAt": { "type": "string", "description": "Chunk creation timestamp" }
+      },
+      "required": ["fileId", "chunkIndex", "totalChunks", "data"]
     },
     "PersonalSchedule": {
       "title": "PersonalSchedule",
@@ -193,6 +228,14 @@
     "/employee_of_the_month/{awardId}": {
       "schema": "EmployeeOfTheMonth",
       "description": "Monthly star employee recognitions"
+    },
+    "/resource_files/{fileId}": {
+      "schema": "ResourceFile",
+      "description": "Resource attachment file metadata"
+    },
+    "/resource_file_chunks/{chunkId}": {
+      "schema": "ResourceFileChunk",
+      "description": "Resource attachment file binary chunks"
     }
   }
 }

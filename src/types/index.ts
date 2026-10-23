@@ -137,15 +137,33 @@ export interface EmployeeOfTheMonth {
   awardedAt: string;
 }
 
+// 자료실 첨부파일 상세 정보 (Persistent File Attachment)
+export interface ResourceAttachment {
+  id: string;
+  resourceId: string;
+  fileName: string;
+  fileSize: string;
+  fileSizeBytes: number;
+  fileType: string; // 확장자 (pdf, docx, xlsx, hwp 등)
+  mimeType: string;
+  storagePath?: string;
+  totalChunks?: number;
+  uploadedAt: string;
+  uploadedBy: string;
+  uploaderName?: string;
+  dataUrl?: string;
+}
+
 // 자료실 (Resources / Reference Board)
 export interface ResourceItem {
   id: string;
   title: string;
-  category: string; // 분양 브로슈어, 계약서 양식, 분양공고문, 세무/법률 가이드, 사업지 분석자료, 기타
+  category: string; // 분양 브로슈어, 계약서 양식, 분양공고문, 세무/법률 가이드, 사업지 분석자료, 기타 서식
   description: string;
-  fileName?: string;
+  fileName?: string; // 하위 호환성 유지
   fileSize?: string;
   fileUrl?: string;
+  attachments?: ResourceAttachment[]; // 다중 첨부파일 지원
   authorId: string;
   authorName: string;
   authorTeam: string;

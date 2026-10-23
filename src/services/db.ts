@@ -21,8 +21,10 @@ import type {
   EmployeeOfTheMonth,
   CompanyTeam,
   ResourceItem,
+  ResourceAttachment,
   PersonalSchedule,
 } from '../types';
+import { deleteResourceFileBinary } from './storage';
 
 export const ADMIN_EMAIL = 'hjb2859320@gmail.com';
 
@@ -878,11 +880,18 @@ export async function saveResourceItem(item: ResourceItem): Promise<void> {
 
 export async function deleteResourceItem(id: string): Promise<void> {
   const current = getLocalCache('resources', DEFAULT_RESOURCES);
+  const targetItem = current.find((r) => r.id === id);
   const updated = current.filter((r) => r.id !== id);
   setLocalCache('resources', updated);
 
   try {
     await deleteDoc(doc(db, 'resources', id));
+    // Clean up associated file storage chunks
+    if (targetItem?.attachments && targetItem.attachments.length > 0) {
+      for (const att of targetItem.attachments) {
+        deleteResourceFileBinary(att.id, att.totalChunks || 1).catch(() => {});
+      }
+    }
   } catch (err) {
     console.warn('Firestore deleteResourceItem fallback saved locally:', err);
   }
