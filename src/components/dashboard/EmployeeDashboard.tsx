@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   FileCheck2,
   Users2,
@@ -9,6 +9,7 @@ import {
   Bell,
   Calendar,
   Building,
+  Building2,
   CheckCircle2,
   ArrowRight,
   ShieldCheck,
@@ -96,8 +97,26 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     };
   }, [profile]);
 
-  // Current month metrics
-  const currentMonthRecords = records.filter((r) => r.yearMonth === currentYearMonth);
+  // Site Scope filter: 'current' (기본: 바뀐 현장에 대한 신규 실적 집계) | 'all' (이전 현장 포함 전체 누적)
+  const currentAssignedSite = profile?.assignedSite || '';
+  const [siteScope, setSiteScope] = useState<'current' | 'all'>('current');
+
+  // Check if there are past records from other/previous sites
+  const previousSitesRecords = useMemo(() => {
+    if (!currentAssignedSite) return [];
+    return records.filter((r) => r.siteName && r.siteName !== currentAssignedSite);
+  }, [records, currentAssignedSite]);
+
+  // Active records to display based on siteScope
+  const activeRecords = useMemo(() => {
+    if (siteScope === 'current' && currentAssignedSite) {
+      return records.filter((r) => r.siteName === currentAssignedSite);
+    }
+    return records;
+  }, [records, siteScope, currentAssignedSite]);
+
+  // Current month metrics (for selected site scope)
+  const currentMonthRecords = activeRecords.filter((r) => r.yearMonth === currentYearMonth);
   const currentTotalContracts = currentMonthRecords
     .filter((r) => r.type === 'contract')
     .reduce((sum, r) => sum + (r.contractCount || 1), 0);
@@ -110,36 +129,35 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     .filter((r) => r.type === 'contract' && r.status === 'cancelled')
     .reduce((sum, r) => sum + (r.contractCount || 1), 0);
 
+  // 1 registration record = 1 team (명수 상관없이 1회 등록에 1팀 집계)
   const currentTotalVisitors = currentMonthRecords
-    .filter((r) => r.type === 'visitor')
-    .reduce((sum, r) => sum + (r.visitorCount || 0), 0);
+    .filter((r) => r.type === 'visitor').length;
 
-  // Cumulative metrics
-  const cumulativeContracts = records
+  // Cumulative metrics (for selected site scope)
+  const cumulativeContracts = activeRecords
     .filter((r) => r.type === 'contract')
     .reduce((sum, r) => sum + (r.contractCount || 1), 0);
 
-  const cumulativeValidContracts = records
+  const cumulativeValidContracts = activeRecords
     .filter((r) => r.type === 'contract' && r.status === 'completed')
     .reduce((sum, r) => sum + (r.contractCount || 1), 0);
 
-  const cumulativeVisitors = records
-    .filter((r) => r.type === 'visitor')
-    .reduce((sum, r) => sum + (r.visitorCount || 0), 0);
+  // 1 registration record = 1 team
+  const cumulativeVisitors = activeRecords
+    .filter((r) => r.type === 'visitor').length;
 
   // Previous month comparison
-  const prevMonthRecords = records.filter((r) => r.yearMonth === prevYearMonth);
+  const prevMonthRecords = activeRecords.filter((r) => r.yearMonth === prevYearMonth);
   const prevValidContracts = prevMonthRecords
     .filter((r) => r.type === 'contract' && r.status === 'completed')
     .reduce((sum, r) => sum + (r.contractCount || 1), 0);
   const prevVisitors = prevMonthRecords
-    .filter((r) => r.type === 'visitor')
-    .reduce((sum, r) => sum + (r.visitorCount || 0), 0);
+    .filter((r) => r.type === 'visitor').length;
 
   const contractDiff = currentValidContracts - prevValidContracts;
   const visitorDiff = currentTotalVisitors - prevVisitors;
 
-  const recentRecords = records.slice(0, 5);
+  const recentRecords = activeRecords.slice(0, 5);
   const activeEvents = events.filter((e) => e.status !== 'ended').slice(0, 2);
 
   return (
@@ -229,6 +247,53 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         </button>
       </div>
 
+      {/* 현장 기준 실적 집계 선택 바 (현장 이동 시 이전 실적 보존 및 신규 현장 독립 집계) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <Building2 className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-800">현재 담당 현장:</span>
+              <span className="font-extrabold text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                {currentAssignedSite || '미배정 현장'}
+              </span>
+            </div>
+            {previousSitesRecords.length > 0 && (
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                현장 이동 전 과거 실적 <span className="font-semibold text-slate-700">{previousSitesRecords.length}건</span>은 삭제 없이 안전하게 보존되어 있습니다.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+          <button
+            type="button"
+            onClick={() => setSiteScope('current')}
+            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+              siteScope === 'current'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            현재 현장 실적 (새 집계)
+          </button>
+          <button
+            type="button"
+            onClick={() => setSiteScope('all')}
+            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+              siteScope === 'all'
+                ? 'bg-slate-900 text-amber-400 shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            전체 현장 누적 {previousSitesRecords.length > 0 && `(이전 ${previousSitesRecords.length}건 포함)`}
+          </button>
+        </div>
+      </div>
+
       {/* 6 Key Performance Metric Cards */}
       <div className="grid grid-cols-2 min-[640px]:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
         {/* 1. 이번달 총 계약 */}
@@ -250,22 +315,22 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           </div>
         </div>
 
-        {/* 2. 이번달 내방객 */}
+        {/* 2. 이번달 내방 유치 */}
         <div className="rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold text-slate-600 keep-all">이번 달 내방객</span>
+              <span className="text-[11px] font-bold text-slate-600 keep-all">이번 달 내방 유치</span>
               <div className="rounded-lg bg-emerald-50 p-1 text-emerald-600">
                 <Users2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             </div>
             <div className="mt-2 flex items-baseline gap-1">
               <span className="text-xl sm:text-2xl font-black text-slate-900">{currentTotalVisitors}</span>
-              <span className="text-xs font-semibold text-slate-500">명</span>
+              <span className="text-xs font-semibold text-slate-500">팀 유치</span>
             </div>
           </div>
           <div className="mt-1.5 text-[10px] sm:text-[11px] text-slate-400 leading-tight keep-all">
-            직접 / 온라인 유입 상담
+            직접 / 온라인 유입 상담 (1회=1팀)
           </div>
         </div>
 
@@ -307,22 +372,22 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           </div>
         </div>
 
-        {/* 5. 누적 내방객 수 */}
+        {/* 5. 누적 내방 유치 */}
         <div className="rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[11px] font-bold text-slate-600 keep-all">전체 누적 내방객</span>
+              <span className="text-[11px] font-bold text-slate-600 keep-all">전체 누적 내방 유치</span>
               <div className="rounded-lg bg-amber-50 p-1 text-amber-600">
                 <Users2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             </div>
             <div className="mt-2 flex items-baseline gap-1">
               <span className="text-xl sm:text-2xl font-black text-slate-900">{cumulativeVisitors}</span>
-              <span className="text-xs font-semibold text-slate-500">명</span>
+              <span className="text-xs font-semibold text-slate-500">팀 유치</span>
             </div>
           </div>
           <div className="mt-1.5 text-[10px] sm:text-[11px] text-slate-400 leading-tight keep-all">
-            누적 고객 유치 실적
+            {siteScope === 'current' ? '현재 현장 누적 유치 실적' : '전체 현장 합산 누적 실적'}
           </div>
         </div>
 
@@ -357,7 +422,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             </div>
           </div>
           <div className="mt-1.5 text-[10px] sm:text-[11px] text-slate-400 leading-tight keep-all">
-            내방객 {visitorDiff >= 0 ? `+${visitorDiff}명` : `${visitorDiff}명`}
+            내방 {visitorDiff >= 0 ? `+${visitorDiff}팀` : `${visitorDiff}팀`}
           </div>
         </div>
       </div>
@@ -366,7 +431,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Monthly Trend Chart */}
         <div className="lg:col-span-2">
-          <MonthlyPerformanceChart records={records} />
+          <MonthlyPerformanceChart records={activeRecords} />
         </div>
 
         {/* Right 1 Col: Employee of the Month Feature Card */}
@@ -475,7 +540,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                         <span className="font-bold text-xs sm:text-sm text-slate-900 break-words">
                           {r.type === 'contract'
                             ? r.contractIdentifier || '동호수 미기재'
-                            : `${r.visitorCount}명 내방 (${r.visitorType === 'new' ? '신규' : '재방문'})`}
+                            : `1팀 내방 (${r.visitorType === 'new' ? '신규' : '재방문'})`}
                         </span>
                         <span
                           className={`rounded px-1.5 py-0.2 text-[9px] sm:text-[10px] font-bold ${
@@ -500,7 +565,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                       </p>
                     ) : <span className="sm:hidden text-[10px] text-slate-400">실적 집계</span>}
                     <span className="text-xs sm:text-sm font-black text-slate-900 shrink-0">
-                      {r.type === 'contract' ? `${r.contractCount || 1}건 완료` : `${r.visitorCount || 0}명 상담`}
+                      {r.type === 'contract' ? `${r.contractCount || 1}건 완료` : '1팀 유치'}
                     </span>
                   </div>
                 </div>

@@ -10,6 +10,7 @@ import {
   Users2,
   Calendar,
   Building,
+  Building2,
   RotateCcw,
   AlertTriangle,
   History,
@@ -88,6 +89,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
   const [selectedYear, setSelectedYear] = useState<string>(currentYear);
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedTeam, setSelectedTeam] = useState<string>('all');
+  const [selectedSite, setSelectedSite] = useState<string>('all');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -269,6 +271,9 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
       const recTeam = p.team || p.department || '';
       if (recTeam !== selectedTeam) return false;
     }
+    if (selectedSite !== 'all') {
+      if (p.siteName !== selectedSite) return false;
+    }
     if (selectedEmployeeId !== 'all') {
       if (p.employeeId !== selectedEmployeeId) return false;
     }
@@ -303,14 +308,14 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
     .filter((p) => p.type === 'contract' && p.status === 'cancelled')
     .reduce((sum, p) => sum + (p.contractCount || 1), 0);
 
+  // 1 registration record = 1 team (명수 상관없이 1회 등록에 1팀 집계)
   const totalVisitors = filteredPerformances
-    .filter((p) => p.type === 'visitor')
-    .reduce((sum, p) => sum + (p.visitorCount || 0), 0);
+    .filter((p) => p.type === 'visitor').length;
 
   // Compute Employee-wise Performance Matrix
   // Every active user is included automatically!
   const employeePerformanceList = users.map((u) => {
-    // Records belonging to this employee filtered by selected period
+    // Records belonging to this employee filtered by selected period & site
     const empRecords = performances.filter((p) => {
       if (p.employeeId !== u.uid) return false;
       if (selectedYear !== 'all') {
@@ -320,6 +325,9 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
       if (selectedMonth !== 'all') {
         const recMonth = p.date.split('-')[1];
         if (recMonth !== selectedMonth) return false;
+      }
+      if (selectedSite !== 'all') {
+        if (p.siteName !== selectedSite) return false;
       }
       return true;
     });
@@ -334,17 +342,15 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
 
     const empTotalContracts = empValidContracts + empCancelledContracts;
 
+    // 1회 등록 = 1팀 집계
     const empVisitors = empRecords
-      .filter((p) => p.type === 'visitor')
-      .reduce((sum, p) => sum + (p.visitorCount || 0), 0);
+      .filter((p) => p.type === 'visitor').length;
 
     const empNewVisitors = empRecords
-      .filter((p) => p.type === 'visitor' && p.visitorType === 'new')
-      .reduce((sum, p) => sum + (p.visitorCount || 0), 0);
+      .filter((p) => p.type === 'visitor' && p.visitorType === 'new').length;
 
     const empRevisitVisitors = empRecords
-      .filter((p) => p.type === 'visitor' && p.visitorType === 'revisit')
-      .reduce((sum, p) => sum + (p.visitorCount || 0), 0);
+      .filter((p) => p.type === 'visitor' && p.visitorType === 'revisit').length;
 
     // Latest activity
     const sortedDates = empRecords.map((p) => p.date).sort();
@@ -420,7 +426,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
           entry.cancelled += p.contractCount || 1;
         }
       } else if (p.type === 'visitor') {
-        entry.visitors += p.visitorCount || 0;
+        entry.visitors += 1; // 1회 등록 = 1팀
       }
     });
 
@@ -450,7 +456,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
           entry.cancelled += p.contractCount || 1;
         }
       } else if (p.type === 'visitor') {
-        entry.visitors += p.visitorCount || 0;
+        entry.visitors += 1; // 1회 등록 = 1팀
       }
     });
 
@@ -470,6 +476,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
       const yearMonthKey = `${targetYear}-${m}`;
       const monthRecords = performances.filter((p) => {
         if (selectedTeam !== 'all' && (p.team || p.department) !== selectedTeam) return false;
+        if (selectedSite !== 'all' && p.siteName !== selectedSite) return false;
         if (selectedEmployeeId !== 'all' && p.employeeId !== selectedEmployeeId) return false;
         return p.date.startsWith(yearMonthKey);
       });
@@ -479,8 +486,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
         .reduce((sum, p) => sum + (p.contractCount || 1), 0);
 
       const visitors = monthRecords
-        .filter((p) => p.type === 'visitor')
-        .reduce((sum, p) => sum + (p.visitorCount || 0), 0);
+        .filter((p) => p.type === 'visitor').length;
 
       const cancelled = monthRecords
         .filter((p) => p.type === 'contract' && p.status === 'cancelled')
@@ -642,17 +648,17 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold">총 내방객 수</span>
+            <span className="text-xs font-bold">총 내방 유치</span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
               <Users2 className="h-4 w-4" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
             <span className="text-2xl font-black text-slate-900">{totalVisitors}</span>
-            <span className="text-xs font-semibold text-slate-500">명 유치</span>
+            <span className="text-xs font-semibold text-slate-500">팀 유치</span>
           </div>
           <div className="mt-1 text-[11px] text-slate-400">
-            신규 및 재방문 상담 합계
+            신규 및 재방문 상담 합계 (1회 등록 = 1팀)
           </div>
         </div>
 
@@ -793,6 +799,23 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
               </select>
             </div>
 
+            {/* Site Filter */}
+            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5">
+              <Building2 className="h-3.5 w-3.5 text-slate-400" />
+              <select
+                value={selectedSite}
+                onChange={(e) => setSelectedSite(e.target.value)}
+                className="bg-transparent font-bold text-slate-800 outline-none cursor-pointer"
+              >
+                <option value="all">전체 분양 현장</option>
+                {sites.map((s) => (
+                  <option key={s.id} value={s.name}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {activeTab === 'employees' && (
               /* Sort options */
               <div className="flex items-center gap-1 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1.5 text-amber-900 font-bold">
@@ -804,7 +827,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                   className="bg-transparent outline-none cursor-pointer font-bold"
                 >
                   <option value="contracts">유효 계약 많은 순</option>
-                  <option value="visitors">내방객 많은 순</option>
+                  <option value="visitors">내방 많은 순 (팀)</option>
                   <option value="name">성명 가나다순</option>
                   <option value="team">소속 팀순</option>
                 </select>
@@ -1119,7 +1142,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                   <th className="px-4 py-3 text-center whitespace-nowrap">취소계약</th>
                   <th className="px-4 py-3 text-center whitespace-nowrap">총 계약 합계</th>
                   <th className="px-4 py-3 text-center bg-indigo-50/70 text-indigo-900 whitespace-nowrap">
-                    총 내방객 수
+                    총 내방 유치
                   </th>
                   <th className="px-4 py-3 text-center whitespace-nowrap">최근 실적 등록일</th>
                   <th className="px-4 py-3 text-center whitespace-nowrap">원장 조회</th>
@@ -1218,11 +1241,11 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                         <td className="px-4 py-3.5 text-center bg-indigo-50/40 whitespace-nowrap">
                           <div className="inline-flex items-center justify-center gap-1 rounded-full bg-indigo-100 px-3 py-1 font-black text-indigo-800 text-xs whitespace-nowrap">
                             <Users2 className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
-                            <span>{item.visitors}명</span>
+                            <span>{item.visitors}팀</span>
                           </div>
                           {item.visitors > 0 && (
                             <div className="text-[10px] text-slate-400 whitespace-nowrap mt-0.5">
-                              신규 {item.newVisitors} · 재방문 {item.revisitVisitors}
+                              신규 {item.newVisitors}팀 · 재방문 {item.revisitVisitors}팀
                             </div>
                           )}
                         </td>
@@ -1374,7 +1397,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                       <td className="px-4 py-3 text-center font-bold text-slate-900 whitespace-nowrap">
                         {record.type === 'contract'
                           ? `${record.contractCount || 1}건`
-                          : `${record.visitorCount || 0}명`}
+                          : '1팀 유치'}
                       </td>
 
                       <td className="px-4 py-3 text-center whitespace-nowrap">
@@ -1682,9 +1705,9 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-slate-100 pb-2">
-                      <span className="text-slate-500">내방 인원:</span>
+                      <span className="text-slate-500">실적 집계 단위:</span>
                       <span className="font-bold text-slate-900">
-                        {selectedRecordForDetail.visitorCount || 0}명
+                        1팀 유치
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-slate-100 pb-2">
@@ -2082,7 +2105,7 @@ export const AdminPerformancesView: React.FC<AdminPerformancesViewProps> = ({
                   <span className="font-bold text-blue-700">
                     {recordToDelete.type === 'contract'
                       ? `계약: ${recordToDelete.contractIdentifier || '동호수 미기재'} (${recordToDelete.contractCount || 1}건)`
-                      : `내방객: ${recordToDelete.visitorCount || 1}명`}
+                      : '내방 고객: 1팀 유치'}
                   </span>
                 </div>
               </div>

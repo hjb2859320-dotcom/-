@@ -66,16 +66,13 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
     .reduce((sum, r) => sum + (r.contractCount || 1), 0);
 
   const monthVisitors = monthRecords
-    .filter((r) => r.type === 'visitor')
-    .reduce((sum, r) => sum + (r.visitorCount || 0), 0);
+    .filter((r) => r.type === 'visitor').length;
 
   const monthNewVisitors = monthRecords
-    .filter((r) => r.type === 'visitor' && r.visitorType === 'new')
-    .reduce((sum, r) => sum + (r.visitorCount || 0), 0);
+    .filter((r) => r.type === 'visitor' && r.visitorType === 'new').length;
 
   const monthRevisitVisitors = monthRecords
-    .filter((r) => r.type === 'visitor' && r.visitorType === 'revisit')
-    .reduce((sum, r) => sum + (r.visitorCount || 0), 0);
+    .filter((r) => r.type === 'visitor' && r.visitorType === 'revisit').length;
 
   // Cumulative calculations
   const totalContracts = records
@@ -91,8 +88,7 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
     .reduce((sum, r) => sum + (r.contractCount || 1), 0);
 
   const totalVisitors = records
-    .filter((r) => r.type === 'visitor')
-    .reduce((sum, r) => sum + (r.visitorCount || 0), 0);
+    .filter((r) => r.type === 'visitor').length;
 
   // Breakdown by Site
   const targetRecords = viewScope === 'monthly' ? monthRecords : records;
@@ -106,7 +102,7 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
         prev.validContracts += r.contractCount || 1;
       }
     } else {
-      prev.visitors += r.visitorCount || 0;
+      prev.visitors += 1; // 1회 등록 = 1팀
     }
     siteMap.set(r.siteName, prev);
   });
@@ -122,7 +118,7 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
     .filter((r) => r.type === 'visitor' && r.funnelSource)
     .forEach((r) => {
       const source = r.funnelSource || '기타';
-      funnelMap.set(source, (funnelMap.get(source) || 0) + (r.visitorCount || 0));
+      funnelMap.set(source, (funnelMap.get(source) || 0) + 1); // 1팀
     });
 
   const funnelBreakdown = Array.from(funnelMap.entries()).map(([source, count]) => ({
@@ -244,7 +240,7 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-600">
             <span className="text-xs font-bold">
-              {viewScope === 'monthly' ? `${selectedMonth} 총 내방객` : '전체 누적 내방객'}
+              {viewScope === 'monthly' ? `${selectedMonth} 총 내방 유치` : '전체 누적 내방 유치'}
             </span>
             <div className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
               <Users2 className="h-4 w-4" />
@@ -254,18 +250,18 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
             <span className="text-3xl font-black text-slate-900">
               {viewScope === 'monthly' ? monthVisitors : totalVisitors}
             </span>
-            <span className="text-sm font-bold text-slate-600">명</span>
+            <span className="text-sm font-bold text-slate-600">팀 유치</span>
           </div>
           <div className="mt-2 text-[11px] text-slate-500">
-            신규 {viewScope === 'monthly' ? monthNewVisitors : '-'}명 / 재방문{' '}
-            {viewScope === 'monthly' ? monthRevisitVisitors : '-'}명
+            신규 {viewScope === 'monthly' ? monthNewVisitors : '-'}팀 / 재방문{' '}
+            {viewScope === 'monthly' ? monthRevisitVisitors : '-'}팀
           </div>
         </div>
 
         {/* Conversion Rate Estimate */}
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-600">
-            <span className="text-xs font-bold">내방객 대비 계약 전환비율</span>
+            <span className="text-xs font-bold">내방팀 대비 계약 전환비율</span>
             <div className="rounded-lg bg-amber-50 p-1.5 text-amber-600">
               <TrendingUp className="h-4 w-4" />
             </div>
@@ -308,7 +304,7 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
                 <div key={s.site} className="rounded-xl border border-slate-100 bg-slate-50/50 p-3">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-800 mb-1.5">
                     <span>{s.site}</span>
-                    <span className="text-blue-600">유효 계약 {s.validContracts}건 / 내방 {s.visitors}명</span>
+                    <span className="text-blue-600">유효 계약 {s.validContracts}건 / 내방 {s.visitors}팀</span>
                   </div>
                   {/* Progress bar visual */}
                   <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden flex">
@@ -352,7 +348,7 @@ export const PerformanceStats: React.FC<PerformanceStatsProps> = ({ isAdminView 
                   className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/40 p-2.5 text-xs"
                 >
                   <span className="font-semibold text-slate-700">{f.source}</span>
-                  <span className="font-bold text-slate-900">{f.count}명 유치</span>
+                  <span className="font-bold text-slate-900">{f.count}팀 유치</span>
                 </div>
               ))
             ) : (

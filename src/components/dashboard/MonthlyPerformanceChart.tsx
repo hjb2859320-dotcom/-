@@ -24,8 +24,7 @@ export const MonthlyPerformanceChart: React.FC<MonthlyPerformanceChartProps> = (
       .filter((r) => r.type === 'contract' && r.status === 'completed')
       .reduce((sum, r) => sum + (r.contractCount || 1), 0);
     const totalVisitors = monthRecords
-      .filter((r) => r.type === 'visitor')
-      .reduce((sum, r) => sum + (r.visitorCount || 0), 0);
+      .filter((r) => r.type === 'visitor').length;
 
     const [year, month] = m.split('-');
     const label = `${parseInt(month, 10)}월`;
@@ -39,7 +38,7 @@ export const MonthlyPerformanceChart: React.FC<MonthlyPerformanceChartProps> = (
   });
 
   const maxContracts = Math.max(...monthlyData.map((d) => d.contracts), 5);
-  const maxVisitors = Math.max(...monthlyData.map((d) => d.visitors), 20);
+  const maxVisitors = Math.max(...monthlyData.map((d) => d.visitors), 10);
 
   return (
     <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs">
@@ -47,7 +46,7 @@ export const MonthlyPerformanceChart: React.FC<MonthlyPerformanceChartProps> = (
         <div>
           <h3 className="font-bold text-slate-800 text-xs sm:text-sm">최근 6개월 실적 추이</h3>
           <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">
-            월별 유효 계약 건수 및 내방객 상담 추이
+            월별 유효 계약 건수 및 내방 상담(팀) 추이
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] sm:text-xs">
@@ -57,7 +56,7 @@ export const MonthlyPerformanceChart: React.FC<MonthlyPerformanceChartProps> = (
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-xs bg-amber-400"></span>
-            <span className="font-semibold text-slate-600">내방객 (명)</span>
+            <span className="font-semibold text-slate-600">내방 고객 (팀)</span>
           </div>
         </div>
       </div>
@@ -83,7 +82,7 @@ export const MonthlyPerformanceChart: React.FC<MonthlyPerformanceChartProps> = (
                   <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 rounded-lg bg-slate-900 px-2 py-1 sm:px-2.5 sm:py-1.5 text-center text-[10px] sm:text-[11px] text-white shadow-lg pointer-events-none whitespace-nowrap">
                     <div className="font-bold">{d.yearMonth}</div>
                     <div className="text-blue-300">계약: {d.contracts}건</div>
-                    <div className="text-amber-300">내방: {d.visitors}명</div>
+                    <div className="text-amber-300">내방: {d.visitors}팀 유치</div>
                   </div>
                 )}
 

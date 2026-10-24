@@ -274,10 +274,10 @@ export const MyPerformanceList: React.FC<MyPerformanceListProps> = ({ onOpenRegi
               }}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500"
             >
-              <option value="all">전체 현장</option>
+              <option value="all">전체 현장 (이전 현장 포함)</option>
               {projectSites.map((s) => (
                 <option key={s.id} value={s.name}>
-                  {s.name}
+                  {s.name} {profile?.assignedSite === s.name ? '(현재 배정)' : ''}
                 </option>
               ))}
             </select>
@@ -381,7 +381,7 @@ export const MyPerformanceList: React.FC<MyPerformanceListProps> = ({ onOpenRegi
                       )}
                     </td>
                     <td className="px-4 py-3 text-center font-bold text-slate-900">
-                      {r.type === 'contract' ? `${r.contractCount || 1}건` : `${r.visitorCount || 0}명`}
+                      {r.type === 'contract' ? `${r.contractCount || 1}건` : '1팀 유치'}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
@@ -458,7 +458,7 @@ export const MyPerformanceList: React.FC<MyPerformanceListProps> = ({ onOpenRegi
                 <div className="font-bold text-slate-900 text-sm">
                   {r.type === 'contract'
                     ? r.contractIdentifier || '동호수 미기재'
-                    : `${r.visitorCount}명 내방 (${r.visitorType === 'new' ? '신규' : '재방문'})`}
+                    : `1팀 내방 (${r.visitorType === 'new' ? '신규' : '재방문'})`}
                 </div>
 
                 <div className="text-xs text-slate-500">
@@ -473,7 +473,7 @@ export const MyPerformanceList: React.FC<MyPerformanceListProps> = ({ onOpenRegi
 
                 <div className="flex items-center justify-between pt-2">
                   <span className="font-bold text-slate-900 text-xs">
-                    {r.type === 'contract' ? `${r.contractCount || 1}건` : `${r.visitorCount || 0}명`}
+                    {r.type === 'contract' ? `${r.contractCount || 1}건` : '1팀 유치'}
                   </span>
                   <div className="flex items-center gap-2">
                     <button
@@ -596,7 +596,7 @@ export const MyPerformanceList: React.FC<MyPerformanceListProps> = ({ onOpenRegi
                   <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
                     <span className="text-slate-500">내방 구분 / 유입:</span>
                     <span className="font-semibold text-slate-800">
-                      {selectedRecordForDetail.visitorType === 'new' ? '신규 내방' : '재방문'}
+                      {selectedRecordForDetail.visitorType === 'new' ? '신규 내방 (1팀 유치)' : '재방문 상담 (1팀 유치)'}
                       {selectedRecordForDetail.funnelSource ? ` (${selectedRecordForDetail.funnelSource})` : ''}
                     </span>
                   </div>

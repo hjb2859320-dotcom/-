@@ -86,9 +86,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     .filter((p) => p.type === 'contract' && p.status === 'cancelled')
     .reduce((sum, p) => sum + (p.contractCount || 1), 0);
 
+  // 1 registration = 1 team (명수 무관 1회 등록 시 1팀 집계)
   const currentVisitors = currentMonthPerfs
-    .filter((p) => p.type === 'visitor')
-    .reduce((sum, p) => sum + (p.visitorCount || 0), 0);
+    .filter((p) => p.type === 'visitor').length;
 
   const handleExportAll = () => {
     exportPerformancesToCsv(
@@ -201,17 +201,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* Current Month Visitors */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold">당월 회사 전체 내방객</span>
+            <span className="text-xs font-semibold">당월 회사 전체 내방 유치</span>
             <div className="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
               <Users2 className="h-4 w-4" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-1">
             <span className="text-2xl font-black text-slate-900">{currentVisitors}</span>
-            <span className="text-xs font-semibold text-slate-500">명</span>
+            <span className="text-xs font-semibold text-slate-500">팀 유치</span>
           </div>
           <div className="mt-1 text-[11px] text-slate-400">
-            전 분양 현장 모델하우스 집계
+            전 분양 현장 모델하우스 집계 (1회=1팀)
           </div>
         </div>
 

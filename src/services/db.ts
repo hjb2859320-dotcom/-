@@ -659,7 +659,7 @@ export async function registerPerformance(
     details: `[${record.type === 'contract' ? '계약' : '내방객'}] ${record.siteName} 신규 실적 등록 (${
       record.type === 'contract'
         ? record.contractIdentifier + ' ' + (record.contractCount || 1) + '건'
-        : (record.visitorCount || 0) + '명'
+        : '1팀 유치'
     })`,
     timestamp: new Date().toISOString(),
   };
@@ -1259,7 +1259,7 @@ export function exportPerformancesToCsv(
       : r.visitorType === 'new'
       ? '신규내방'
       : '재방문',
-    r.type === 'contract' ? `${r.contractCount || 1}건` : `${r.visitorCount || 0}명`,
+    r.type === 'contract' ? `${r.contractCount || 1}건` : '1팀 유치',
     r.funnelSource || '-',
     r.status === 'completed' ? '완료' : '취소',
     r.cancelReason || '-',

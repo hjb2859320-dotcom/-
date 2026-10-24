@@ -161,15 +161,11 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
     const list = teamMembers.map((member) => {
       const memberPerfs = teamPerformances.filter((p) => p.employeeId === member.uid);
 
-      // Visitor count breakdown
+      // Visitor count breakdown (1회 등록 = 1팀 집계)
       const visitorRecords = memberPerfs.filter((p) => p.type === 'visitor');
-      const totalVisitors = visitorRecords.reduce((acc, cur) => acc + (cur.visitorCount || 1), 0);
-      const newVisitors = visitorRecords
-        .filter((p) => p.visitorType === 'new')
-        .reduce((acc, cur) => acc + (cur.visitorCount || 1), 0);
-      const revisitVisitors = visitorRecords
-        .filter((p) => p.visitorType === 'revisit')
-        .reduce((acc, cur) => acc + (cur.visitorCount || 1), 0);
+      const totalVisitors = visitorRecords.length;
+      const newVisitors = visitorRecords.filter((p) => p.visitorType === 'new').length;
+      const revisitVisitors = visitorRecords.filter((p) => p.visitorType === 'revisit').length;
 
       // Contract count breakdown
       const contractRecords = memberPerfs.filter((p) => p.type === 'contract');
@@ -276,8 +272,7 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
       );
 
       const visitors = monthPerfs
-        .filter((p) => p.type === 'visitor')
-        .reduce((sum, p) => sum + (p.visitorCount || 1), 0);
+        .filter((p) => p.type === 'visitor').length;
 
       const contracts = monthPerfs
         .filter((p) => p.type === 'contract')
@@ -521,7 +516,7 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
         <div className="relative overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50/80 via-white to-blue-50/40 p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-blue-800 uppercase tracking-wider">
-              {viewMode === 'month' ? `${selectedYearMonth}월` : `${selectedYearMonth.substring(0, 4)}년`} 팀 총 내방객 수
+              {viewMode === 'month' ? `${selectedYearMonth}월` : `${selectedYearMonth.substring(0, 4)}년`} 팀 총 내방 유치
             </span>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
               <Users className="h-5 w-5" />
@@ -531,12 +526,12 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
             <span className="text-3xl font-black text-slate-900">
               {teamAggregates.totalVisitors.toLocaleString()}
             </span>
-            <span className="text-xs font-bold text-slate-500">명</span>
+            <span className="text-xs font-bold text-slate-500">팀 유치</span>
           </div>
           <div className="mt-2.5 flex items-center justify-between border-t border-blue-100/80 pt-2.5 text-[11px] text-slate-600">
-            <span>신규 방문 <strong className="text-blue-700 font-black">{teamAggregates.totalNewVisitors}</strong>명</span>
+            <span>신규 방문 <strong className="text-blue-700 font-black">{teamAggregates.totalNewVisitors}</strong>팀</span>
             <span className="text-slate-300">•</span>
-            <span>재방문 <strong className="text-indigo-700 font-black">{teamAggregates.totalRevisitVisitors}</strong>명</span>
+            <span>재방문 <strong className="text-indigo-700 font-black">{teamAggregates.totalRevisitVisitors}</strong>팀</span>
           </div>
         </div>
 
@@ -617,7 +612,7 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
               <div className="mt-2.5 flex items-center justify-between border-t border-purple-100/80 pt-2.5 text-[11px] text-slate-600">
                 <span>계약 <strong className="text-purple-900 font-black">{teamAggregates.mvp.totalContracts}건</strong></span>
                 <span className="text-slate-300">•</span>
-                <span>내방객 <strong>{teamAggregates.mvp.totalVisitors}명</strong></span>
+                <span>내방 <strong>{teamAggregates.mvp.totalVisitors}팀 유치</strong></span>
               </div>
             </>
           ) : (
@@ -884,12 +879,12 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
                     <td className="py-4 px-3 bg-blue-50/30 border-x border-blue-100/70 text-center whitespace-nowrap">
                       <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 font-black text-blue-900 text-xs whitespace-nowrap">
                         <Users className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-                        <span>{item.totalVisitors}명</span>
+                        <span>{item.totalVisitors}팀 유치</span>
                       </div>
                       <div className="mt-1 flex items-center justify-center gap-2 text-[10px] text-slate-500 whitespace-nowrap">
-                        <span>신규 {item.newVisitors}</span>
+                        <span>신규 {item.newVisitors}팀</span>
                         <span>•</span>
-                        <span>재방문 {item.revisitVisitors}</span>
+                        <span>재방문 {item.revisitVisitors}팀</span>
                       </div>
                     </td>
 
@@ -1008,13 +1003,13 @@ export const TeamLeaderPerformanceView: React.FC<TeamLeaderPerformanceViewProps>
                   <div className="rounded-lg bg-blue-50/70 p-2 border border-blue-100">
                     <div className="text-[10px] font-bold text-blue-700 flex items-center gap-1">
                       <Users className="h-3 w-3" />
-                      <span>월별 내방객 수</span>
+                      <span>월별 내방 유치</span>
                     </div>
                     <div className="text-base font-black text-blue-900 mt-0.5">
-                      {item.totalVisitors}명
+                      {item.totalVisitors}팀 유치
                     </div>
                     <div className="text-[10px] text-slate-500 mt-0.5">
-                      신규 {item.newVisitors} · 재방문 {item.revisitVisitors}
+                      신규 {item.newVisitors}팀 · 재방문 {item.revisitVisitors}팀
                     </div>
                   </div>
 
@@ -1102,8 +1097,7 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   const contractPerfs = performances.filter((p) => p.type === 'contract');
 
   const totalVisitors = visitorPerfs
-    .filter((p) => p.status !== 'cancelled')
-    .reduce((acc, cur) => acc + (cur.visitorCount || 1), 0);
+    .filter((p) => p.status !== 'cancelled').length;
 
   const totalContracts = contractPerfs
     .filter((p) => p.status !== 'cancelled')
@@ -1143,9 +1137,9 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
         <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 border-b border-slate-200 text-center">
           <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3">
             <div className="text-[11px] font-bold text-blue-800">
-              {viewMode === 'month' ? `${yearMonth}월` : `${yearMonth.substring(0, 4)}년`} 총 내방객 수
+              {viewMode === 'month' ? `${yearMonth}월` : `${yearMonth.substring(0, 4)}년`} 총 내방 유치
             </div>
-            <div className="text-2xl font-black text-blue-900 mt-1">{totalVisitors}명</div>
+            <div className="text-2xl font-black text-blue-900 mt-1">{totalVisitors}팀 유치</div>
           </div>
           <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
             <div className="text-[11px] font-bold text-amber-800">
@@ -1215,8 +1209,8 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 font-semibold text-blue-900">
-                        <span>내방객 수:</span>
-                        <strong className="text-sm font-black">{perf.visitorCount || 1}명</strong>
+                        <span>내방 유치:</span>
+                        <strong className="text-sm font-black">1팀 유치</strong>
                         <span className="text-slate-400">•</span>
                         <span>유형: {perf.visitorType === 'revisit' ? '재방문' : '신규 내방'}</span>
                         {perf.funnelSource && (
