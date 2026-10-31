@@ -197,3 +197,20 @@ export interface MonthlyStats {
   newVisitors: number;
   revisitVisitors: number;
 }
+
+// 사내 알림 (App Notifications - 사내자료실, 사내 공지사항, 프로모션&이벤트, 이달의 우수직원)
+export type NotificationCategory = 'resource' | 'notice' | 'event' | 'star';
+
+export interface AppNotification {
+  id: string;
+  category: NotificationCategory;
+  categoryLabel: string; // '사내자료실' | '사내 공지' | '프로모션&이벤트' | '이달의 우수직원'
+  title: string;
+  message: string;
+  targetMenu: string; // 'resources' | 'notices' | 'events' | 'employee_of_the_month'
+  targetId: string;
+  createdAt: string; // ISO string
+  authorName?: string;
+  isImportant?: boolean;
+  itemData?: Notice | ResourceItem | InternalEvent | EmployeeOfTheMonth;
+}

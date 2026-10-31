@@ -23,6 +23,7 @@ import type {
   ResourceItem,
   ResourceAttachment,
   PersonalSchedule,
+  AppNotification,
 } from '../types';
 import { deleteResourceFileBinary } from './storage';
 
@@ -875,6 +876,7 @@ export async function saveResourceItem(item: ResourceItem): Promise<void> {
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_resources_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_updated'));
   }
 }
 
@@ -898,6 +900,7 @@ export async function deleteResourceItem(id: string): Promise<void> {
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_resources_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_updated'));
   }
 }
 
@@ -1058,6 +1061,7 @@ export async function saveNotice(notice: Notice): Promise<void> {
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_notices_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_updated'));
   }
 }
 
@@ -1074,6 +1078,7 @@ export async function deleteNotice(id: string): Promise<void> {
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_notices_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_updated'));
   }
 }
 
@@ -1140,6 +1145,7 @@ export async function saveEvent(event: InternalEvent): Promise<void> {
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_events_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_updated'));
   }
 }
 
@@ -1156,6 +1162,7 @@ export async function deleteEvent(id: string): Promise<void> {
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_events_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_updated'));
   }
 }
 
@@ -1205,6 +1212,7 @@ export async function saveEmployeeOfTheMonth(award: EmployeeOfTheMonth): Promise
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_star_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_updated'));
   }
 }
 
@@ -1221,6 +1229,152 @@ export async function deleteEmployeeOfTheMonth(id: string): Promise<void> {
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('leedo_star_updated'));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_updated'));
+  }
+}
+
+/* -------------------------------------------------------------
+ * 10. APP NOTIFICATIONS (최신 알림: 사내자료실, 공지사항, 프로모션&이벤트, 우수직원)
+ * ------------------------------------------------------------- */
+export async function getRecentNotifications(): Promise<AppNotification[]> {
+  try {
+    const [resources, notices, events, stars] = await Promise.all([
+      getResourceItems(),
+      getNotices(),
+      getEvents(),
+      getEmployeeOfTheMonthList(),
+    ]);
+
+    const notifs: AppNotification[] = [];
+
+    // 1. 사내자료실 (Resources)
+    resources.forEach((r) => {
+      const attachCount = r.attachments?.length || (r.fileName ? 1 : 0);
+      const attachInfo = attachCount > 0 ? ` (첨부파일 ${attachCount}개)` : '';
+      notifs.push({
+        id: `notif-res-${r.id}`,
+        category: 'resource',
+        categoryLabel: '사내자료실',
+        title: r.title,
+        message: r.description
+          ? (r.description.length > 70 ? r.description.substring(0, 70) + '...' : r.description)
+          : `${r.category} 신규 분양 자료가 등록되었습니다.${attachInfo}`,
+        targetMenu: 'resources',
+        targetId: r.id,
+        createdAt: r.createdAt || new Date().toISOString(),
+        authorName: r.authorName || '관리자',
+        itemData: r,
+      });
+    });
+
+    // 2. 사내 공지사항 (Notices)
+    notices.forEach((n) => {
+      notifs.push({
+        id: `notif-notice-${n.id}`,
+        category: 'notice',
+        categoryLabel: '사내 공지',
+        title: n.title,
+        message: n.content
+          ? (n.content.length > 70 ? n.content.substring(0, 70) + '...' : n.content)
+          : '새로운 사내 공지사항이 등록되었습니다.',
+        targetMenu: 'notices',
+        targetId: n.id,
+        createdAt: n.createdAt || new Date().toISOString(),
+        authorName: n.authorName || '관리자',
+        isImportant: n.isImportant,
+        itemData: n,
+      });
+    });
+
+    // 3. 프로모션 & 이벤트 (Events)
+    events.forEach((e) => {
+      notifs.push({
+        id: `notif-event-${e.id}`,
+        category: 'event',
+        categoryLabel: '프로모션&이벤트',
+        title: e.title,
+        message: e.description
+          ? (e.description.length > 70 ? e.description.substring(0, 70) + '...' : e.description)
+          : `${e.startDate} ~ ${e.endDate} 신규 프로모션 및 사내 이벤트가 등록되었습니다.`,
+        targetMenu: 'events',
+        targetId: e.id,
+        createdAt: e.createdAt || `${e.startDate}T09:00:00.000Z`,
+        authorName: e.authorName || '경영관리팀',
+        itemData: e,
+      });
+    });
+
+    // 4. 이달의 우수직원 (Employee of the Month)
+    stars
+      .filter((s) => s.isPublic !== false)
+      .forEach((s) => {
+        const criteriaMap: Record<string, string> = {
+          contract: '최다 계약 달성',
+          visitor: '최다 내방 유치',
+          contribution: '조직 공헌',
+        };
+        const criteriaStr = criteriaMap[s.criteriaCategory] || '우수직원';
+        notifs.push({
+          id: `notif-star-${s.id}`,
+          category: 'star',
+          categoryLabel: '이달의 우수직원',
+          title: `[${s.yearMonth} 우수직원] ${s.employeeName} ${s.position || '직원'} 선정`,
+          message: s.reason
+            ? (s.reason.length > 70 ? s.reason.substring(0, 70) + '...' : s.reason)
+            : `${criteriaStr} 우수직원으로 선정되었습니다.`,
+          targetMenu: 'employee_of_the_month',
+          targetId: s.id,
+          createdAt: s.awardedAt || new Date().toISOString(),
+          authorName: s.awardedBy || '관리자',
+          itemData: s,
+        });
+      });
+
+    // Sort by createdAt descending
+    notifs.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    return notifs.slice(0, 40);
+  } catch (err) {
+    console.error('getRecentNotifications error:', err);
+    return [];
+  }
+}
+
+export function getReadNotificationIds(userId: string): string[] {
+  if (typeof window === 'undefined' || !userId) return [];
+  try {
+    const raw = localStorage.getItem(`leedo_read_notifications_${userId}`);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function markNotificationAsRead(userId: string, notificationId: string): void {
+  if (typeof window === 'undefined' || !userId) return;
+  try {
+    const current = getReadNotificationIds(userId);
+    if (!current.includes(notificationId)) {
+      current.push(notificationId);
+      localStorage.setItem(`leedo_read_notifications_${userId}`, JSON.stringify(current));
+      window.dispatchEvent(new CustomEvent('leedo_notifications_read_updated'));
+    }
+  } catch (err) {
+    console.error('markNotificationAsRead error:', err);
+  }
+}
+
+export function markAllNotificationsAsRead(userId: string, notificationIds: string[]): void {
+  if (typeof window === 'undefined' || !userId) return;
+  try {
+    const current = getReadNotificationIds(userId);
+    const set = new Set([...current, ...notificationIds]);
+    localStorage.setItem(`leedo_read_notifications_${userId}`, JSON.stringify(Array.from(set)));
+    window.dispatchEvent(new CustomEvent('leedo_notifications_read_updated'));
+  } catch (err) {
+    console.error('markAllNotificationsAsRead error:', err);
   }
 }
 

@@ -23,7 +23,7 @@ import { AdminPerformancesView } from './components/admin/AdminPerformancesView'
 import { TeamLeaderPerformanceView } from './components/team/TeamLeaderPerformanceView';
 import { MyProfileView } from './components/profile/MyProfileView';
 import { LeedoLogo } from './components/common/LeedoLogo';
-import type { Notice, InternalEvent } from './types';
+import type { Notice, InternalEvent, ResourceItem } from './types';
 
 function MainApp() {
   const { profile, loading, isApproved, isPending, isRejected, isDeactivated, isAdmin } = useAuth();
@@ -36,6 +36,7 @@ function MainApp() {
   // Selected item modals
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<InternalEvent | null>(null);
+  const [selectedResource, setSelectedResource] = useState<ResourceItem | null>(null);
 
   const showToast = (msg: string) => {
     setSuccessToast(msg);
@@ -102,6 +103,18 @@ function MainApp() {
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           activeMenu={activeMenu}
           setActiveMenu={setActiveMenu}
+          onSelectNotice={(n) => {
+            setSelectedNotice(n);
+            setActiveMenu('notices');
+          }}
+          onSelectEvent={(e) => {
+            setSelectedEvent(e);
+            setActiveMenu('events');
+          }}
+          onSelectResource={(r) => {
+            setSelectedResource(r);
+            setActiveMenu('resources');
+          }}
         />
 
         <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full min-w-0 overflow-x-hidden">
@@ -129,7 +142,10 @@ function MainApp() {
           )}
 
           {activeMenu === 'resources' && (
-            <ResourceBoardView />
+            <ResourceBoardView
+              initialResource={selectedResource}
+              onClearInitialResource={() => setSelectedResource(null)}
+            />
           )}
 
           {activeMenu === 'calendar' && (

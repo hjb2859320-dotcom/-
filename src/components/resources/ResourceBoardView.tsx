@@ -48,7 +48,15 @@ const RESOURCE_CATEGORIES = [
   '기타 서식',
 ];
 
-export const ResourceBoardView: React.FC = () => {
+interface ResourceBoardViewProps {
+  initialResource?: ResourceItem | null;
+  onClearInitialResource?: () => void;
+}
+
+export const ResourceBoardView: React.FC<ResourceBoardViewProps> = ({
+  initialResource,
+  onClearInitialResource,
+}) => {
   const { profile, isAdmin } = useAuth();
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,6 +142,14 @@ export const ResourceBoardView: React.FC = () => {
   useEffect(() => {
     loadResources();
   }, []);
+
+  // Open initial resource modal if navigated from notification
+  useEffect(() => {
+    if (initialResource) {
+      setActiveItem(initialResource);
+      onClearInitialResource?.();
+    }
+  }, [initialResource]);
 
   // Sync activeItem if updated in list
   useEffect(() => {
